@@ -164,10 +164,18 @@
             </div>
 
             <div class="viz-panel" data-panel="map" aria-label="Interactive map of candidate cities">
-              <svg id="mapSvg" class="viz" role="img" aria-label="Map-like plot of candidate cities sized by Climate Twin Index and colored by selected metric"></svg>
+              <svg id="mapSvg" class="viz" role="img" aria-label="Geographic map of candidate cities sized by Climate Twin Index and colored by selected metric, with a travelling marker for San Diego's future climate"></svg>
+              <div class="travel-controls">
+                <button id="playButton" class="play-button" type="button">▶ Play</button>
+                <div class="travel-slider">
+                  <input id="yearSlider" type="range" min="2025" max="2090" step="1" value="2055" aria-label="Year" />
+                  <div class="travel-scale"><span>2025</span><span class="year-now" id="yearLabel">2055</span><span>2090</span></div>
+                </div>
+              </div>
+              <p class="travel-readout" id="travelReadout"></p>
               <div class="panel-insight">
                 <strong>Map caveat</strong>
-                <p>Circle size shows the overall Climate Twin Index. Color changes with the selected metric, revealing cases where a nearby city is geographically close but climatically different.</p>
+                <p>The orange marker is San Diego's projected climate; it slides to whichever present-day city it most resembles in the chosen year. Circle size shows each city's overall Climate Twin Index; color changes with the selected metric.</p>
               </div>
             </div>
 
@@ -226,7 +234,7 @@
         </article>
         <article>
           <h3>Interaction rationale</h3>
-          <p>The scenario, period, and map metric controls act as dynamic queries over the same processed CMIP6 city dataset. Clicking a city on the map or a bar in the ranking updates the fingerprint and difference charts, which supports details-on-demand. The scroll steps guide attention to one question at a time, while the controls still let viewers test whether the conclusion changes under low, moderate, or high emissions.</p>
+          <p>The scenario, period, and map metric controls act as dynamic queries over the city dataset. Clicking a city on the map or a bar in the ranking updates the fingerprint and difference charts, supporting details-on-demand. The signature interaction is the year slider on the map: as the reader drags it (or presses play), a marker for San Diego's projected climate travels across a real geographic projection to whichever present-day city it most resembles that year — making the abstract idea of a moving climate concrete. The scroll steps guide attention to one question at a time, while the controls let viewers test whether the conclusion changes under low, moderate, or high emissions.</p>
         </article>
         <article>
           <h3>Development process</h3>
@@ -239,7 +247,7 @@
       <p class="eyebrow">Data and status</p>
       <h2 id="data-title">CMIP6 city-level prototype dataset</h2>
       <p>The prototype uses the processed city-level JSON and CSV dataset included with the project. Records summarize selected U.S. city locations, annual San Diego temperature anomalies, seasonal temperature profiles, climate-twin similarity scores, and seasonal precipitation profiles.</p>
-      <p>The data is proposal-stage and follows the same schema as the planned Google Cloud / NOAA CMIP6 extraction output.</p>
+      <p>Note: the values currently shipped in <code>data.js</code> are proposal-stage placeholders that follow the exact schema of the planned Google Cloud / NOAA CMIP6 extraction. Before final submission they will be replaced with the real per-city CMIP6 values produced by the Colab extraction script (run against the live Zarr stores), with no change to the page code — the visualizations read the same record schema either way.</p>
     </section>
   </main>
 
@@ -247,8 +255,11 @@
     <p>Thunder4Champ: Zonglin Zhang, La Li, Vincent Gao. DSC 106 final project prototype.</p>
   </footer>
 
+  <div id="tooltip" class="chart-tooltip" role="status" aria-live="polite"></div>
+
   <script src="d3.v7.min.js"></script>
   <script src="data.js"></script>
+  <script src="geo.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
