@@ -453,6 +453,55 @@ footer {
   display: block;
 }
 
+.weight-field {
+  min-width: 196px;
+  flex: 1 1 196px;
+}
+.weight-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+.weight-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 32px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  color: var(--night);
+}
+.weight-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.weight-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.weight-row input[type="range"] {
+  width: 100%;
+  min-width: 56px;
+  accent-color: var(--accent);
+  margin: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.weight-pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  color: var(--muted);
+}
+
 fieldset {
   min-width: 0;
   margin: 0;
@@ -742,6 +791,16 @@ a:focus-visible {
 .selected-label {
   fill: var(--ink);
   font-weight: 900;
+}
+
+.today-label {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 640;
+}
+
+.decay-city {
+  font-size: 10px;
 }
 
 .grid-line {

@@ -26,8 +26,8 @@
       <div class="hero-copy">
         <p class="eyebrow">DSC 106 climate visualization</p>
         <h1>Finding San Diego's Future Climate Twin</h1>
-        <p class="lede">Which city today most closely resembles San Diego's projected future climate?</p>
-        <p class="takeaway">Under future warming, San Diego may become more similar to inland Southern California cities than to Phoenix.</p>
+        <p class="lede">Ask where San Diego's climate is heading and you'll hear one word: <strong>Phoenix</strong>.</p>
+        <p class="takeaway">But the real climate models disagree. San Diego's closest present-day twin is <strong>Los Angeles</strong> — and under high emissions, its climate eventually outruns every western city we compared.</p>
         <div class="hero-actions">
           <a class="primary-link" href="#story">Start the story</a>
           <a class="secondary-link" href="#methodology">How the index works</a>
@@ -63,55 +63,55 @@
 
           <div class="story-step is-active" data-view="trajectory">
             <span class="step-kicker">Step 1 of 5</span>
-            <h3>San Diego moves warmer first.</h3>
-            <p>Before comparing other cities, trace San Diego from today toward 2050 and the 2080s. The path moves right as seasonal temperatures rise.</p>
+            <h3>San Diego is on the move.</h3>
+            <p>This is climate space: warmer to the right, wetter toward the top. The teal line traces San Diego from today to your chosen future — pick 2050 or the 2080s to see how far it travels. Every other city sits at its climate <em>today</em>.</p>
             <ul>
-              <li>The line shows San Diego's climate trajectory.</li>
-              <li>Candidate cities sit in the same temperature-rainfall space.</li>
-              <li>Closer points mean more similar climate profiles.</li>
+              <li>The dashed box is the model's range of futures.</li>
+              <li>Whichever cities the path lands near are the candidate twins.</li>
+              <li>Switch low → high emissions to push the path further.</li>
             </ul>
           </div>
 
           <div class="story-step" data-view="ranking">
             <span class="step-kicker">Step 2 of 5</span>
-            <h3>Find the closest climate twin.</h3>
-            <p>The Climate Twin Index scores how much each city today resembles San Diego's future — 60% seasonal temperature, 30% rainfall, 10% summer heat. Switch scenario or period to watch the rankings shift.</p>
+            <h3>The closest twin is Los Angeles.</h3>
+            <p>The Climate Twin Index scores how closely each present-day city matches San Diego's future — by default 60% temperature, 30% rainfall, 10% summer heat. Los Angeles wins, then Riverside; Phoenix sits near the bottom.</p>
             <ul>
               <li>Click any bar to select that city.</li>
-              <li>The closest city is not necessarily Phoenix.</li>
-              <li>Rankings change across emissions pathways.</li>
+              <li>Drag the sliders to redefine what "similar" means.</li>
+              <li>The order barely budges across scenarios — LA stays on top.</li>
             </ul>
           </div>
 
           <div class="story-step" data-view="map">
             <span class="step-kicker">Step 3 of 5</span>
-            <h3>Explore the West Coast map.</h3>
-            <p>Circle size encodes overall match; color encodes the selected metric. Geographic distance is not the same as climate distance.</p>
+            <h3>Watch the climate travel.</h3>
+            <p>Zoomed in on the two closest twins. The orange marker is San Diego's projected climate; drag the year or press play and it slides north to whichever city it most resembles — Los Angeles or Riverside.</p>
             <ul>
-              <li>Click any city dot to select it.</li>
-              <li>Switch map color to isolate temperature, rainfall, or summer heat.</li>
+              <li>Press play to send San Diego's climate across the decades.</li>
+              <li>The cities are barely 150 km apart — but climate distance is the point.</li>
             </ul>
           </div>
 
           <div class="story-step" data-view="fingerprint">
             <span class="step-kicker">Step 4 of 5</span>
-            <h3>Compare the seasonal fingerprint.</h3>
-            <p>A city can match San Diego on temperature but still differ on rainfall. The paired seasonal bars show why the index score is high or low.</p>
+            <h3>Three climates, side by side.</h3>
+            <p>San Diego's projection against its two closest twins — Los Angeles and Riverside — today. The top panel is seasonal temperature, the bottom is rainfall; whiskers mark the model's p10–p90 range.</p>
             <ul>
-              <li>Top panel: seasonal temperature.</li>
-              <li>Bottom panel: seasonal precipitation.</li>
-              <li>Matching bar heights across both panels = stronger twin.</li>
+              <li>Teal = San Diego's future, orange = LA, blue = Riverside.</li>
+              <li>Look at summer — that's where the three pull apart.</li>
+              <li>Rainfall is where a hotter inland city stops matching.</li>
             </ul>
           </div>
 
           <div class="story-step" data-view="difference">
             <span class="step-kicker">Step 5 of 5</span>
-            <h3>See where the match fails.</h3>
-            <p>Bars centered on zero diagnose mismatch. Right means the selected city is warmer or wetter than future San Diego; left means colder or drier.</p>
+            <h3>When does the twin run out?</h3>
+            <p>Each bar is the best match San Diego can find — across every scenario and period. The match holds near 80 for most futures, then falls off a cliff under high emissions by the 2080s.</p>
             <ul>
-              <li>Small bars: close match.</li>
-              <li>Large rainfall bars: precipitation mismatch.</li>
-              <li>This is why a high-heat city can still score poorly.</li>
+              <li>Click a bar to jump to that scenario and period.</li>
+              <li>A score of 56 means even the closest city barely fits.</li>
+              <li>That gap is San Diego heading somewhere with no twin.</li>
             </ul>
           </div>
 
@@ -141,17 +141,21 @@
               <legend>Map color</legend>
               <div class="button-row metric-buttons" id="metricButtons"></div>
             </fieldset>
+            <fieldset class="weight-field">
+              <legend>What counts as "similar"?</legend>
+              <div class="weight-sliders" id="weightSliders"></div>
+            </fieldset>
             <button class="ghost-button" id="resetButton" type="button">Reset</button>
           </div>
 
-          <p class="annotation" id="activeAnnotation">San Diego's path shifts warmer under every scenario. The selected future period is compared with present-day candidate cities.</p>
+          <p class="annotation" id="activeAnnotation">The path runs from San Diego today to San Diego in your selected future period. Every other city is plotted at its present-day climate.</p>
 
           <div class="viz-stack">
             <div class="viz-panel is-active" data-panel="trajectory" aria-label="San Diego climate trajectory">
-              <svg id="trajectorySvg" class="viz" role="img" aria-label="Climate-space plot showing San Diego today, 2050, and the 2080s"></svg>
+              <svg id="trajectorySvg" class="viz" role="img" aria-label="Climate-space plot showing San Diego today and its selected future period, with present-day cities labelled"></svg>
               <div class="panel-insight">
                 <strong>Read this first</strong>
-                <p>The path connects San Diego today to projected future San Diego. Candidate cities are plotted in the same climate space — distance means climate resemblance, not miles on a map.</p>
+                <p>The path connects San Diego today to its chosen future. Other cities sit at their present-day climate, so nearness here is a quick read on resemblance — the Climate Twin Index in Step 2 refines it season by season.</p>
               </div>
             </div>
 
@@ -175,23 +179,23 @@
               <p class="travel-readout" id="travelReadout"></p>
               <div class="panel-insight">
                 <strong>Map caveat</strong>
-                <p>The orange marker is San Diego's projected climate; it slides to whichever present-day city it most resembles in the chosen year. Circle size shows each city's overall Climate Twin Index; color changes with the selected metric.</p>
+                <p>Zoomed to the two closest twins. The orange marker is San Diego's projected climate; it slides to whichever city — Los Angeles or Riverside — it most resembles in the chosen year. These cities sit within ~150 km of each other, so this is climate distance, not map distance.</p>
               </div>
             </div>
 
             <div class="viz-panel" data-panel="fingerprint" aria-label="Climate fingerprint comparison">
               <svg id="fingerprintSvg" class="viz tall-viz" role="img" aria-label="Seasonal temperature and rainfall comparison"></svg>
               <div class="panel-insight">
-                <strong>Why the selected city scores well or poorly</strong>
-                <p>The top panel compares seasonal temperature. The bottom compares precipitation. Similar bars across both panels indicate a stronger climate twin.</p>
+                <strong>Why Los Angeles edges out Riverside</strong>
+                <p>San Diego's future (teal) is shown beside Los Angeles and Riverside today. Matching heights in <em>both</em> the temperature and rainfall panels make a stronger twin; whiskers show how far the projection could shift across climate models.</p>
               </div>
             </div>
 
             <div class="viz-panel" data-panel="difference" aria-label="Difference from future San Diego chart">
-              <svg id="differenceSvg" class="viz tall-viz" role="img" aria-label="Centered bars showing seasonal differences from future San Diego"></svg>
+              <svg id="differenceSvg" class="viz tall-viz" role="img" aria-label="Bar chart of San Diego's best available twin match across scenarios and periods"></svg>
               <div class="panel-insight">
-                <strong>Mismatch diagnosis</strong>
-                <p>Bars near zero are close matches. Large positive rain bars mean the selected city is wetter than future San Diego; large negative heat bars mean it's cooler.</p>
+                <strong>The match runs out</strong>
+                <p>Each bar is the best Climate Twin Index San Diego can reach in that scenario and period. It stays near 80 for most futures, then drops to the mid-50s under high emissions by the 2080s — past that, no present-day city is a good analog.</p>
               </div>
             </div>
           </div>
@@ -200,27 +204,33 @@
       </div>
     </section>
 
+    <section id="takeaway" class="info-section takeaway-section" aria-labelledby="takeaway-title">
+      <p class="eyebrow">The takeaway</p>
+      <h2 id="takeaway-title">San Diego isn't becoming Phoenix. It's becoming Los Angeles — and then leaving the map.</h2>
+      <p>Across every emissions scenario, the closest present-day match to San Diego's projected climate is <strong>Los Angeles</strong>, followed by inland Riverside — not the desert cities most people name. Phoenix and Tucson rank near the bottom: their scorching, monsoon-fed summers look nothing like San Diego's mild, bone-dry ones. But follow the high-emissions path to the 2080s and even Los Angeles stops fitting — San Diego's summers warm so far that <strong>no city we compared has lived through that climate yet</strong>. A familiar twin makes the near future legible; the disappearance of any twin is the warning.</p>
+    </section>
+
     <section id="methodology" class="info-section" aria-labelledby="methodology-title">
       <p class="eyebrow">Methodology</p>
       <h2 id="methodology-title">How the Climate Twin Index is calculated</h2>
       <div class="method-grid">
         <article>
           <h3>Compare seasonal profiles</h3>
-          <p>For each comparison city, we compare its current climate with San Diego's projected future climate across seasons.</p>
+          <p>Each candidate city's real present-day climate (ERA5 reanalysis, 1991–2020) is compared with San Diego's projected future climate, season by season, for both temperature and rainfall.</p>
         </article>
         <article>
-          <h3>Standardize different units</h3>
-          <p>Temperature and precipitation are transformed into component scores from 0 to 100 so that different units do not distort the final index.</p>
+          <h3>Score each component 0–100</h3>
+          <p>Seasonal temperature, rainfall, and summer-heat differences become match scores from 0 (totally different) to 100 (identical), so different units don't distort the result.</p>
         </article>
         <article>
-          <h3>Weight the components</h3>
-          <p>Climate Twin Index = 0.60 * Temperature Match + 0.30 * Rainfall Match + 0.10 * Summer Heat Match.</p>
+          <h3>Weight them — your call</h3>
+          <p>Index = w₁·Temperature + w₂·Rainfall + w₃·Summer heat. Defaults are 60/30/10, but the sliders let you decide what "similar" means and watch the ranking re-sort.</p>
         </article>
       </div>
       <div class="method-note">
-        <p><strong>Temperature distance</strong> = sqrt(mean over seasons of standardized seasonal temperature differences).</p>
-        <p><strong>Rainfall distance</strong> = sqrt(mean over seasons of standardized seasonal precipitation differences).</p>
-        <p><strong>Summer heat distance</strong> = standardized difference in summer temperature.</p>
+        <p><strong>San Diego's future</strong> = its real ERA5 seasonal baseline plus the CMIP6 multi-model change signal (temperature added in °C, rainfall scaled by percent change) — a standard delta-downscaling approach.</p>
+        <p><strong>Uncertainty band</strong> = the p10–p90 spread across the CMIP6 model ensemble, shown as whiskers on the seasonal fingerprint and a shaded box on the trajectory.</p>
+        <p><strong>Distances</strong> use root-mean-square seasonal differences, with summer heat scored separately so monsoon-driven desert cities aren't mistaken for coastal ones.</p>
       </div>
     </section>
 
@@ -230,24 +240,24 @@
       <div class="method-grid">
         <article>
           <h3>Design decisions</h3>
-          <p>We changed the project from a dense dashboard into a scrollytelling explorable explanation so the reader first understands the question, then the Climate Twin Index, then the result. The ranking uses bar length for the overall index because position and length are effective for comparing ordered values. The map is deliberately secondary: it shows where candidate cities are, but size and color encode climate similarity so geographic distance is not mistaken for climate distance.</p>
+          <p>We turned a dense dashboard into a scrollytelling explanation so the reader meets the question, then the Climate Twin Index, then the result — one step at a time. The ranking uses bar length because position and length are the most accurate channels for comparing ordered values. Step 1 plots cities in a shared temperature–rainfall space; later steps deliberately narrow focus — the map zooms to only the two closest twins so the reader compares climate, not geography.</p>
         </article>
         <article>
           <h3>Interaction rationale</h3>
-          <p>The scenario, period, and map metric controls act as dynamic queries over the city dataset. Clicking a city on the map or a bar in the ranking updates the fingerprint and difference charts, supporting details-on-demand. The signature interaction is the year slider on the map: as the reader drags it (or presses play), a marker for San Diego's projected climate travels across a real geographic projection to whichever present-day city it most resembles that year — making the abstract idea of a moving climate concrete. The scroll steps guide attention to one question at a time, while the controls let viewers test whether the conclusion changes under low, moderate, or high emissions.</p>
+          <p>The scenario and period buttons act as dynamic queries over the dataset, and the weight sliders let the reader redefine what "similar" means and watch the ranking re-sort — turning an arbitrary 60/30/10 choice into something testable. The signature interaction is the map's year slider: drag it or press play and a marker for San Diego's projected climate travels to whichever nearby city it most resembles that year, making a moving climate concrete. Step 5's bars are clickable, jumping the whole story to that scenario and period.</p>
         </article>
         <article>
           <h3>Development process</h3>
-          <p>So far, the team has built the static webpage, loaded the processed CMIP6 dataset, implemented linked SVG visualizations, and revised the narrative around a less misleading title. The most time-consuming work was deciding how to explain “similarity” without hiding the temperature and rainfall components behind a single score. The hardest remaining design challenge is making uncertainty and model assumptions visible without overwhelming the main climate-twin story.</p>
+          <p>We replaced every placeholder with real public data: ERA5 reanalysis for present-day cities and the CMIP6 ensemble for San Diego's future, combined with a standard delta-downscaling method. The most time-consuming work was expressing "similarity" without hiding temperature and rainfall behind one number — solved with the component-weighted bars and sliders. The challenge we were most unsure about — showing model uncertainty without burying the story — is now handled by the p10–p90 whiskers and the trajectory's range box.</p>
         </article>
       </div>
     </section>
 
     <section id="data" class="info-section data-section" aria-labelledby="data-title">
-      <p class="eyebrow">Data and status</p>
-      <h2 id="data-title">CMIP6 city-level prototype dataset</h2>
-      <p>The prototype uses the processed city-level JSON and CSV dataset included with the project. Records summarize selected U.S. city locations, annual San Diego temperature anomalies, seasonal temperature profiles, climate-twin similarity scores, and seasonal precipitation profiles.</p>
-      <p>Note: the values currently shipped in <code>data.js</code> are proposal-stage placeholders that follow the exact schema of the planned Google Cloud / NOAA CMIP6 extraction. Before final submission they will be replaced with the real per-city CMIP6 values produced by the Colab extraction script (run against the live Zarr stores), with no change to the page code — the visualizations read the same record schema either way.</p>
+      <p class="eyebrow">Data</p>
+      <h2 id="data-title">Real, public climate data — no placeholders</h2>
+      <p>Present-day climate for all ten cities comes from <strong>ERA5 reanalysis</strong> (1991–2020 climatology) sampled at each city's coordinates via the Open-Meteo archive. San Diego's future comes from the <strong>CMIP6 multi-model ensemble</strong> (SSP1-2.6, SSP2-4.5, SSP5-8.5; mid-century and end-of-century) via the World Bank Climate Change Knowledge Portal, with p10 / median / p90 percentiles for the uncertainty band.</p>
+      <p>The shipped <code>thunder4champ_climate_dataset.csv</code> holds the real long-format values (200+ rows across 11 columns), and the pipeline is fully reproducible: <code>fetch_era5.py</code> + <code>fetch_cckp.py</code> + <code>build_data.py</code> rebuild <code>data.js</code> directly from those public APIs.</p>
     </section>
   </main>
 

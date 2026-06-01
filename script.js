@@ -33,39 +33,39 @@ const METRICS = [
   { key: "winterRainScore", label: "Winter Rain Match" }
 ];
 
+const FOCUS_CITIES = ["San Diego", "Los Angeles", "Riverside"];
+
 const VIEW_META = {
   trajectory: {
     label: "Step 1 of 5",
     question: "How does San Diego's future climate move?",
-    annotation: "San Diego's path shifts warmer under every scenario. The selected future period is compared with present-day candidate cities."
+    annotation: "The path runs from San Diego today to San Diego in your selected future period. Every other city is plotted at its present-day climate — choose 2050 or the 2080s to see how far the path reaches."
   },
   ranking: {
     label: "Step 2 of 5",
     question: "Which city is the closest climate twin?",
-    annotation: "The closest city is not necessarily Phoenix. The ranking changes when the emissions pathway or period changes."
+    annotation: "Los Angeles, then Riverside — not the desert cities. The ranking re-sorts when you change the scenario, the period, or the weights below."
   },
   map: {
     label: "Step 3 of 5",
-    question: "When does San Diego's climate arrive in each city?",
-    annotation: "Drag the year, or press play. The travelling marker is the present-day city that San Diego's climate most resembles in that year."
+    question: "When does San Diego's climate arrive in Los Angeles?",
+    annotation: "Drag the year or press play. The marker is San Diego's projected climate; it slides to whichever nearby city — Los Angeles or Riverside — it most resembles that year."
   },
   fingerprint: {
     label: "Step 4 of 5",
-    question: "Why is the selected city similar?",
-    annotation: "A city can match San Diego on temperature but still differ on rainfall. Seasonal fingerprints reveal that tradeoff."
+    question: "How does San Diego's future compare with its two closest twins?",
+    annotation: "San Diego's projection sits beside Los Angeles and Riverside today, season by season. Whiskers show the model range — a city can match on temperature yet still differ on rainfall."
   },
   difference: {
     label: "Step 5 of 5",
-    question: "Where does the match fail?",
-    annotation: "Centered bars show mismatch: right means the selected city is warmer or wetter than future San Diego; left means colder or drier."
+    question: "How long does the twin last?",
+    annotation: "Each bar is the best match San Diego can find in that scenario and period. Under high emissions by the 2080s, even the closest twin barely fits — San Diego runs off the map of today's cities."
   }
 };
 
-const rawRecords = (window.CLIMATE_DATA && window.CLIMATE_DATA.records ? window.CLIMATE_DATA.records : []).map((record) => ({
-  ...record,
-  year: record.year === null || record.year === "" ? null : Number(record.year),
-  value: record.value === null || record.value === "" ? null : Number(record.value)
-}));
+const DATA = window.CLIMATE_DATA || {};
+const CITIES = DATA.cities || {};
+const SD = DATA.sanDiego || { present: { temp: {}, precip: {} }, future: {} };
 
 const state = {
   scenario: "SSP5-8.5",
@@ -74,7 +74,8 @@ const state = {
   metric: "index",
   activeView: "trajectory",
   year: 2055,
-  playing: false
+  playing: false,
+  weights: { temp: 0.6, rain: 0.3, heat: 0.1 }
 };
 
 // ───────────────────────── helpers ─────────────────────────
@@ -99,45 +100,35 @@ function clearSvg(svg, width, height) {
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 function lerp(a, b, t) { return a + (b - a) * t; }
 
-function recordsOf(type) { return rawRecords.filter((r) => r.record_type === type); }
 function profileName(period = state.period, scenario = state.scenario) { return `${period} ${scenario}`; }
 function scenarioMeta(code = state.scenario) { return SCENARIOS.find((s) => s.code === code) || SCENARIOS[0]; }
+function metricField(metric) { return metric && metric.indexOf("temp") !== -1 ? "temp" : "precip"; }
 
 function cityLocations() {
-  return recordsOf("city_location").map((r) => ({ city: r.city, lat: Number(r.lat), lon: Number(r.lon) }));
+  return Object.entries(CITIES).map(([city, d]) => ({ city, lat: d.lat, lon: d.lon }));
 }
 function comparisonCities() {
-  return [...new Set(recordsOf("climate_twin_similarity").map((r) => r.comparison_city))].filter(Boolean);
+  return Object.keys(CITIES).filter((c) => c !== "San Diego");
 }
-function seasonalValues(recordType, city, profile, metric, scenario) {
-  const values = {};
-  rawRecords.forEach((r) => {
-    const scenarioMatches = !scenario || r.scenario === scenario;
-    if (r.record_type === recordType && r.city === city && r.profile === profile && r.metric === metric && scenarioMatches) {
-      values[r.season] = r.value;
-    }
-  });
-  return values;
+function futureProfile(period = state.period, scenario = state.scenario) {
+  return (SD.future[scenario] && SD.future[scenario][period]) || null;
 }
 function futureValues(metric, period = state.period, scenario = state.scenario) {
-  return seasonalValues("seasonal_future_profile", "San Diego", profileName(period, scenario), metric, scenario);
+  const f = futureProfile(period, scenario);
+  return f ? f[metricField(metric)].median : {};
+}
+function futureBand(metric, period = state.period, scenario = state.scenario) {
+  const f = futureProfile(period, scenario);
+  if (!f) return null;
+  const m = f[metricField(metric)];
+  return { lo: m.lo, hi: m.hi };
 }
 function comparisonValues(city, metric) {
-  return seasonalValues("seasonal_comparison_profile", city, `${city} today`, metric, "Historical");
+  const c = CITIES[city];
+  return c ? c.present[metricField(metric)] : {};
 }
-function sanDiegoTodayTemp() {
-  return seasonalValues("seasonal_temp_profile", "San Diego", "San Diego today", "seasonal_mean_temp_c", "Historical");
-}
-function sanDiegoTodayPrecipEstimate(scenario = state.scenario) {
-  const future = futureValues("seasonal_precip_mm", "2080s", scenario);
-  const result = {};
-  SEASONS.forEach((season) => {
-    const change = rawRecords.find((r) => r.record_type === "precip_change" && r.scenario === scenario && r.season === season);
-    const pct = change ? change.value : 0;
-    result[season] = future[season] / (1 + pct / 100);
-  });
-  return result;
-}
+function sanDiegoTodayTemp() { return SD.present.temp; }
+function sanDiegoTodayPrecip() { return SD.present.precip; }
 function mean(values) {
   const valid = values.filter((v) => Number.isFinite(v));
   return valid.length ? valid.reduce((s, v) => s + v, 0) / valid.length : 0;
@@ -146,6 +137,11 @@ function sum(values) { return values.filter((v) => Number.isFinite(v)).reduce((t
 function rmse(values) { return Math.sqrt(mean(values.map((v) => v * v))); }
 function completeSeasonal(values) { return SEASONS.every((s) => Number.isFinite(values[s])); }
 
+function normWeights() {
+  const w = state.weights; const s = w.temp + w.rain + w.heat;
+  if (!(s > 0)) return { temp: 1 / 3, rain: 1 / 3, heat: 1 / 3 };
+  return { temp: w.temp / s, rain: w.rain / s, heat: w.heat / s };
+}
 // Generalised scoring: compare any San-Diego seasonal profile against a city.
 function scoreForProfile(city, futureTemp, futureRain) {
   const cityTemp = comparisonValues(city, "seasonal_mean_temp_c");
@@ -161,7 +157,8 @@ function scoreForProfile(city, futureTemp, futureRain) {
   const rainScore = clamp(100 - rainDistance * 1.1, 0, 100);
   const heatScore = clamp(100 - heatDistance * 14, 0, 100);
   const winterRainScore = clamp(100 - winterRainDistance * 1.2, 0, 100);
-  const index = 0.6 * tempScore + 0.3 * rainScore + 0.1 * heatScore;
+  const w = normWeights();
+  const index = w.temp * tempScore + w.rain * rainScore + w.heat * heatScore;
   return { city, tempScore, rainScore, heatScore, winterRainScore, index };
 }
 function componentScores(city) {
@@ -188,7 +185,7 @@ function metricLabel(key = state.metric) { return (METRICS.find((m) => m.key ===
 // ── Time-travel: San Diego's seasonal profile at an arbitrary year ──
 function sdAnchors(scenario = state.scenario) {
   return [
-    { yr: 2020, temp: sanDiegoTodayTemp(), rain: sanDiegoTodayPrecipEstimate(scenario) },
+    { yr: 2020, temp: sanDiegoTodayTemp(), rain: sanDiegoTodayPrecip() },
     { yr: 2050, temp: futureValues("seasonal_mean_temp_c", "2050", scenario), rain: futureValues("seasonal_precip_mm", "2050", scenario) },
     { yr: 2085, temp: futureValues("seasonal_mean_temp_c", "2080s", scenario), rain: futureValues("seasonal_precip_mm", "2080s", scenario) }
   ];
@@ -229,6 +226,19 @@ function moveTip(evt) {
 function hideTip() { const t = tip(); if (t) t.classList.remove("is-visible"); }
 
 // ───────────────────────── controls ─────────────────────────
+const WEIGHT_DEFS = [
+  { key: "temp", label: "Temperature", color: COLORS.accent },
+  { key: "rain", label: "Rainfall", color: COLORS.rain },
+  { key: "heat", label: "Summer heat", color: COLORS.heat }
+];
+function updateWeightPcts() {
+  const w = normWeights();
+  document.querySelectorAll("[data-weight-pct]").forEach((el) => { el.textContent = Math.round(w[el.dataset.weightPct] * 100) + "%"; });
+}
+function syncWeightSliders() {
+  document.querySelectorAll("[data-weight]").forEach((el) => { el.value = String(Math.round(state.weights[el.dataset.weight] * 100)); });
+  updateWeightPcts();
+}
 function setButtonStates() {
   document.querySelectorAll("[data-scenario]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scenario === state.scenario)));
   document.querySelectorAll("[data-period]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.period === state.period)));
@@ -260,10 +270,35 @@ function initControls() {
     b.addEventListener("click", () => { state.metric = metric.key; updateAll(); });
     metricButtons.appendChild(b);
   });
+
+  // Weight sliders — let the reader redefine what "similar" means
+  const weightWrap = byId("weightSliders");
+  if (weightWrap) {
+    WEIGHT_DEFS.forEach((wd) => {
+      const row = document.createElement("label");
+      row.className = "weight-row";
+      const name = document.createElement("span");
+      name.className = "weight-name";
+      name.innerHTML = `<span class="weight-dot" style="background:${wd.color}"></span>${wd.label}`;
+      const input = document.createElement("input");
+      input.type = "range"; input.min = "0"; input.max = "100"; input.step = "5";
+      input.dataset.weight = wd.key;
+      input.value = String(Math.round(state.weights[wd.key] * 100));
+      input.setAttribute("aria-label", `${wd.label} weight`);
+      const pct = document.createElement("span");
+      pct.className = "weight-pct"; pct.dataset.weightPct = wd.key;
+      input.addEventListener("input", () => { state.weights[wd.key] = Number(input.value) / 100; updateWeightPcts(); updateAll(); });
+      row.appendChild(name); row.appendChild(input); row.appendChild(pct);
+      weightWrap.appendChild(row);
+    });
+    updateWeightPcts();
+  }
+
   byId("resetButton").addEventListener("click", () => {
     stopPlay();
     state.scenario = "SSP5-8.5"; state.period = "2080s"; state.metric = "index";
     state.activeView = "trajectory"; state.selectedCity = null; state.year = 2055;
+    state.weights = { temp: 0.6, rain: 0.3, heat: 0.1 }; syncWeightSliders();
     ensureSelectedCity(); setActiveView(state.activeView); updateAll();
     document.querySelector(".story-steps")?.firstElementChild?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
@@ -335,11 +370,10 @@ function drawTrajectory() {
   svgNode.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const svg = d3.select(svgNode);
 
-  const today = climatePointForSeasonal("San Diego today", sanDiegoTodayTemp(), sanDiegoTodayPrecipEstimate(), { type: "sd" });
-  const sd2050 = climatePointForSeasonal("San Diego 2050", futureValues("seasonal_mean_temp_c", "2050"), futureValues("seasonal_precip_mm", "2050"), { type: "sd" });
-  const sd2080 = climatePointForSeasonal("San Diego 2080s", futureValues("seasonal_mean_temp_c", "2080s"), futureValues("seasonal_precip_mm", "2080s"), { type: "sd" });
+  const today = climatePointForSeasonal("San Diego today", sanDiegoTodayTemp(), sanDiegoTodayPrecip(), { type: "sd" });
+  const sdFuture = climatePointForSeasonal(`San Diego ${state.period}`, futureValues("seasonal_mean_temp_c", state.period), futureValues("seasonal_precip_mm", state.period), { type: "sd" });
   const cityPoints = comparisonCities().map((c) => climatePointForSeasonal(c, comparisonValues(c, "seasonal_mean_temp_c"), comparisonValues(c, "seasonal_precip_mm"), { type: "city", row: componentScores(c) }));
-  const sdPoints = [today, sd2050, sd2080];
+  const sdPoints = [today, sdFuture];
   const all = [...sdPoints, ...cityPoints];
   const temps = all.map((p) => p.avgTemp), rains = all.map((p) => p.annualPrecip);
   const xDomain = [Math.floor(Math.min(...temps) - 1), Math.ceil(Math.max(...temps) + 1)];
@@ -351,19 +385,33 @@ function drawTrajectory() {
   if (svg.select(".bg").empty()) {
     svg.append("rect").attr("class", "bg").attr("width", width).attr("height", height).attr("rx", 18).attr("fill", COLORS.bg);
     svg.append("g").attr("class", "grid");
+    svg.append("g").attr("class", "uncertainty-layer");
     svg.append("path").attr("class", "traj-path").attr("fill", "none").attr("stroke", COLORS.accent).attr("stroke-width", 4).attr("stroke-linecap", "round").attr("stroke-linejoin", "round");
     svg.append("g").attr("class", "city-layer");
     svg.append("g").attr("class", "sd-layer");
     svg.append("text").attr("class", "chart-label").attr("x", (margin.left + width - margin.right) / 2).attr("y", height - 18).attr("text-anchor", "middle").text("Average seasonal temperature (°C)");
     svg.append("text").attr("class", "chart-label").attr("x", margin.left).attr("y", 20).text("Annual precipitation (mm)");
   }
-  const xTicks = [16, 18, 20, 22, 24, 26, 28].filter((t) => t >= xDomain[0] && t <= xDomain[1]);
-  const yTicks = [100, 200, 300, 400].filter((t) => t >= yDomain[0] && t <= yDomain[1]);
+  const xTicks = [14, 16, 18, 20, 22, 24, 26, 28, 30].filter((t) => t >= xDomain[0] && t <= xDomain[1]);
+  const yTicks = [200, 400, 600, 800, 1000, 1200].filter((t) => t >= yDomain[0] && t <= yDomain[1]);
   const grid = svg.select(".grid");
   grid.selectAll(".gx").data(xTicks).join("line").attr("class", "gx grid-line").attr("y1", margin.top).attr("y2", height - margin.bottom).attr("x1", x).attr("x2", x);
   grid.selectAll(".gxl").data(xTicks).join("text").attr("class", "gxl chart-label").attr("text-anchor", "middle").attr("y", height - 34).attr("x", x).text((d) => `${d}°`);
   grid.selectAll(".gy").data(yTicks).join("line").attr("class", "gy grid-line").attr("x1", margin.left).attr("x2", width - margin.right).attr("y1", y).attr("y2", y);
   grid.selectAll(".gyl").data(yTicks).join("text").attr("class", "gyl chart-label").attr("text-anchor", "end").attr("x", margin.left - 10).attr("y", (d) => y(d) + 4).text((d) => d);
+
+  // model-uncertainty boxes on the future anchors (p10–p90 spread across the CMIP6 ensemble)
+  const bandBoxes = [state.period].map((P) => {
+    const tb = futureBand("seasonal_mean_temp_c", P), pb = futureBand("seasonal_precip_mm", P);
+    if (!tb || !pb) return null;
+    const lo = climatePointForSeasonal("", tb.lo, pb.lo), hi = climatePointForSeasonal("", tb.hi, pb.hi);
+    return { P, x0: x(lo.avgTemp), x1: x(hi.avgTemp), ylo: y(lo.annualPrecip), yhi: y(hi.annualPrecip) };
+  }).filter(Boolean);
+  svg.select(".uncertainty-layer").selectAll(".ubox").data(bandBoxes, (d) => d.P).join(
+    (enter) => enter.append("rect").attr("class", "ubox").attr("rx", 10).attr("fill", COLORS.accent).attr("opacity", 0.1).attr("stroke", COLORS.accent).attr("stroke-opacity", 0.4).attr("stroke-dasharray", "3 4")
+  ).transition().duration(700)
+    .attr("x", (d) => Math.min(d.x0, d.x1)).attr("width", (d) => Math.max(2, Math.abs(d.x1 - d.x0)))
+    .attr("y", (d) => Math.min(d.ylo, d.yhi)).attr("height", (d) => Math.max(2, Math.abs(d.ylo - d.yhi)));
 
   // city dots
   const cd = svg.select(".city-layer").selectAll(".cdot").data(cityPoints, (d) => d.label);
@@ -380,10 +428,10 @@ function drawTrajectory() {
     .on("mousemove", moveTip).on("mouseleave", hideTip)
     .on("click", (e, d) => { state.selectedCity = d.label; updateAll(); });
 
-  // city labels (selected + phoenix)
-  svg.select(".city-layer").selectAll(".clbl").data(cityPoints.filter((d) => d.label === state.selectedCity || d.label === "Phoenix"), (d) => d.label)
-    .join("text").attr("class", "clbl chart-label selected-label").text((d) => d.label)
-    .transition().duration(600).attr("x", (d) => x(d.avgTemp) + 11).attr("y", (d) => y(d.annualPrecip) - 8);
+  // city labels — every comparison city, marked "today"
+  svg.select(".city-layer").selectAll(".clbl").data(cityPoints, (d) => d.label)
+    .join("text").attr("class", (d) => `clbl chart-label ${d.label === state.selectedCity ? "selected-label" : "today-label"}`).text((d) => `${d.label} today`)
+    .transition().duration(600).attr("x", (d) => x(d.avgTemp) + 9).attr("y", (d) => y(d.annualPrecip) - 7);
 
   // SD trajectory path with draw-on animation
   const line = d3.line().x((d) => x(d.avgTemp)).y((d) => y(d.annualPrecip));
@@ -448,9 +496,12 @@ function drawRanking() {
   groups.transition().duration(dur).ease(d3.easeCubicInOut).attr("transform", (d, i) => `translate(0,${margin.top + i * rowHeight + 6})`);
   groups.select(".city-label").text((d) => d.city).attr("fill", (d) => d.city === state.selectedCity ? COLORS.ink : COLORS.muted).attr("font-weight", (d) => d.city === state.selectedCity ? 900 : 720);
   const t = d3.transition().duration(dur).ease(d3.easeCubicOut);
-  groups.select(".bar-temp").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("width", (d) => Math.max(1, x(d.tempScore * 0.6) - x(0)));
-  groups.select(".bar-rain").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("x", (d) => x(d.tempScore * 0.6)).attr("width", (d) => Math.max(1, x(d.tempScore * 0.6 + d.rainScore * 0.3) - x(d.tempScore * 0.6)));
-  groups.select(".bar-heat").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("x", (d) => x(d.tempScore * 0.6 + d.rainScore * 0.3)).attr("width", (d) => Math.max(1, x(d.index) - x(d.tempScore * 0.6 + d.rainScore * 0.3)));
+  const w = normWeights();
+  const seg1 = (d) => w.temp * d.tempScore;
+  const seg2 = (d) => w.temp * d.tempScore + w.rain * d.rainScore;
+  groups.select(".bar-temp").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("width", (d) => Math.max(1, x(seg1(d)) - x(0)));
+  groups.select(".bar-rain").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("x", (d) => x(seg1(d))).attr("width", (d) => Math.max(1, x(seg2(d)) - x(seg1(d))));
+  groups.select(".bar-heat").attr("opacity", (d) => d.city === state.selectedCity ? 1 : 0.78).transition(t).attr("x", (d) => x(seg2(d))).attr("width", (d) => Math.max(1, x(d.index) - x(seg2(d))));
   groups.select(".rank-score").text((d) => d.index.toFixed(1)).transition(t).attr("x", (d) => x(d.index) + 8);
   groups.select(".rank-outline").attr("x", margin.left).transition(t).attr("width", (d) => Math.max(2, x(d.index) - margin.left)).attr("stroke", (d) => d.city === state.selectedCity ? COLORS.ink : "transparent").attr("stroke-width", (d) => d.city === state.selectedCity ? 2.5 : 0);
   groups.on("click", (e, d) => { state.selectedCity = d.city; updateAll(); })
@@ -481,7 +532,16 @@ function drawMap() {
     });
     geo.__rewound = true;
   }
-  const projection = d3.geoMercator().fitExtent([[26, 26], [width - 26, height - 26]], geo);
+  // Close-up zoom on the three nearest twins: San Diego, Los Angeles, Riverside.
+  // Fit to a MultiPoint of the padded corners (winding-immune, unlike a Polygon).
+  const focusLocs = cityLocations().filter((l) => FOCUS_CITIES.includes(l.city));
+  const fLons = focusLocs.map((l) => l.lon), fLats = focusLocs.map((l) => l.lat);
+  const padLon = 1.0, padLat = 0.7;
+  const focusGeo = { type: "MultiPoint", coordinates: [
+    [Math.min(...fLons) - padLon, Math.min(...fLats) - padLat],
+    [Math.max(...fLons) + padLon, Math.max(...fLats) + padLat]
+  ] };
+  const projection = d3.geoMercator().fitExtent([[26, 26], [width - 26, height - 26]], focusGeo);
   mapProjection = projection;
   const path = d3.geoPath(projection);
 
@@ -496,7 +556,7 @@ function drawMap() {
     .attr("transform", (d) => { const p = projection([d.properties.clon, d.properties.clat]); return `translate(${p[0]},${p[1]})`; })
     .text((d) => d.properties.abbr);
 
-  const locations = cityLocations();
+  const locations = cityLocations().filter((l) => FOCUS_CITIES.includes(l.city));
   const rowsByCity = new Map(rankingRows().map((r) => [r.city, r]));
 
   // travel trail + ghost layers (created empty, populated by updateTravel)
@@ -550,7 +610,7 @@ function updateTravel(animate) {
   if (!mapProjection || state.activeView !== "map") return;
   const svg = d3.select(byId("mapSvg"));
   const ghost = svg.select(".ghost"); if (ghost.empty()) return;
-  const rows = bestTwinAtYear(state.year);
+  const rows = bestTwinAtYear(state.year).filter((r) => FOCUS_CITIES.includes(r.city));
   const top = rows[0];
   const locs = new Map(cityLocations().map((l) => [l.city, l]));
   const target = locs.get(top.city) || locs.get("San Diego");
@@ -611,12 +671,14 @@ function drawFingerprint() {
   svgNode.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svgNode.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const svg = d3.select(svgNode);
-  const selected = selectedRow(); if (!selected) return;
 
-  const futureTemp = futureValues("seasonal_mean_temp_c");
-  const futureRain = futureValues("seasonal_precip_mm");
-  const cityTemp = comparisonValues(selected.city, "seasonal_mean_temp_c");
-  const cityRain = comparisonValues(selected.city, "seasonal_precip_mm");
+  const twins = rankingRows().slice(0, 2);            // the two closest twins (Los Angeles, Riverside by default)
+  if (!twins.length) return;
+  const twinColors = [COLORS.heat, COLORS.rain];
+  const mkSeries = (metric) => [
+    { name: `San Diego ${profileName()}`, values: futureValues(metric), color: COLORS.accent, band: futureBand(metric) },
+    ...twins.map((tw, i) => ({ name: `${tw.city} today`, values: comparisonValues(tw.city, metric), color: twinColors[i] }))
+  ];
 
   if (svg.select(".fp-bg").empty()) {
     svg.append("rect").attr("class", "fp-bg").attr("width", width).attr("height", height).attr("rx", 18).attr("fill", COLORS.bg);
@@ -625,95 +687,138 @@ function drawFingerprint() {
     svg.append("g").attr("class", "fp-legend");
   }
   const legend = svg.select(".fp-legend"); legend.selectAll("*").remove();
-  legend.append("rect").attr("x", width - 246).attr("y", 16).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", COLORS.accent);
-  legend.append("text").attr("class", "chart-label").attr("x", width - 226).attr("y", 26).text(`San Diego ${profileName()}`);
-  legend.append("rect").attr("x", width - 246).attr("y", 39).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", COLORS.heat);
-  legend.append("text").attr("class", "chart-label").attr("x", width - 226).attr("y", 49).text(`${selected.city} today`);
+  const legendItems = [{ name: `San Diego ${profileName()}`, color: COLORS.accent }, ...twins.map((tw, i) => ({ name: `${tw.city} today`, color: twinColors[i] }))];
+  legendItems.forEach((it, i) => {
+    const ly = 18 + i * 19;
+    legend.append("rect").attr("x", width - 252).attr("y", ly - 10).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", it.color);
+    legend.append("text").attr("class", "chart-label").attr("x", width - 234).attr("y", ly).text(it.name);
+  });
+  const wy = 18 + legendItems.length * 19;
+  legend.append("line").attr("x1", width - 246).attr("x2", width - 246).attr("y1", wy - 9).attr("y2", wy + 5).attr("stroke", COLORS.ink).attr("stroke-width", 1.4).attr("opacity", 0.78);
+  legend.append("text").attr("class", "chart-label").attr("x", width - 234).attr("y", wy + 2).text("Model range (p10–p90)");
 
-  drawGroupedBars(svg.select(".fp-temp"), { x: margin.left, y: 48, width: width - margin.left - margin.right, height: 170 }, futureTemp, cityTemp, "Seasonal temperature (°C)", COLORS.accent, COLORS.heat, selected.city);
-  drawGroupedBars(svg.select(".fp-rain"), { x: margin.left, y: 278, width: width - margin.left - margin.right, height: 170 }, futureRain, cityRain, "Seasonal precipitation (mm)", COLORS.rain, COLORS.heat, selected.city);
+  drawGroupedBars(svg.select(".fp-temp"), { x: margin.left, y: 64, width: width - margin.left - margin.right, height: 156 }, mkSeries("seasonal_mean_temp_c"), "Seasonal temperature (°C)");
+  drawGroupedBars(svg.select(".fp-rain"), { x: margin.left, y: 290, width: width - margin.left - margin.right, height: 156 }, mkSeries("seasonal_precip_mm"), "Seasonal precipitation (mm)");
 }
-function drawGroupedBars(g, box, future, city, label, futureColor, cityColor, cityName) {
-  const values = SEASONS.flatMap((s) => [future[s], city[s]]).filter(Number.isFinite);
-  const maxValue = Math.max(...values) * 1.18 || 1;
+function drawGroupedBars(g, box, series, label) {
+  const allVals = series.flatMap((s) => SEASONS.flatMap((se) => [s.values[se], s.band ? s.band.hi[se] : undefined]));
+  const maxValue = Math.max(...allVals.filter(Number.isFinite)) * 1.18 || 1;
   const y = d3.scaleLinear([0, maxValue], [box.y + box.height, box.y]);
   const groupWidth = box.width / SEASONS.length;
-  const barWidth = Math.min(34, groupWidth * 0.24);
+  const n = series.length;
+  const slot = Math.min(34, (groupWidth * 0.74) / n);
+  const bw = Math.max(6, slot - 3);
   const t = d3.transition().duration(700).ease(d3.easeCubicOut);
+  const isTemp = label.includes("temp");
 
-  // gridlines
   g.selectAll(".fpgrid").data([0, maxValue / 2, maxValue]).join("line").attr("class", "fpgrid grid-line").attr("x1", box.x).attr("x2", box.x + box.width).attr("y1", y).attr("y2", y);
   g.selectAll(".fpgl").data([0, maxValue / 2, maxValue]).join("text").attr("class", "fpgl chart-label").attr("text-anchor", "end").attr("x", box.x - 10).attr("y", (d) => y(d) + 4).text((d) => d.toFixed(0));
   g.selectAll(".fptitle").data([label]).join("text").attr("class", "fptitle chart-label selected-label").attr("x", box.x).attr("y", box.y - 14).text((d) => d);
-  g.selectAll(".fpseason").data(SEASONS).join("text").attr("class", "fpseason chart-label").attr("text-anchor", "middle").attr("x", (s, i) => box.x + groupWidth * i + groupWidth / 2).attr("y", box.y + box.height + 24).text((s) => s);
+  g.selectAll(".fpseason").data(SEASONS).join("text").attr("class", "fpseason chart-label").attr("text-anchor", "middle").attr("x", (se, i) => box.x + groupWidth * i + groupWidth / 2).attr("y", box.y + box.height + 24).text((se) => se);
 
-  const data = SEASONS.map((s, i) => ({ s, i, fv: future[s], cv: city[s], center: box.x + groupWidth * i + groupWidth / 2 }));
-  // future bars
-  g.selectAll(".fbar").data(data, (d) => d.s).join(
-    (enter) => enter.append("rect").attr("class", "fbar").attr("rx", 7).attr("fill", futureColor).attr("x", (d) => d.center - barWidth - 4).attr("width", barWidth).attr("y", y(0)).attr("height", 0)
-  ).attr("fill", futureColor).attr("x", (d) => d.center - barWidth - 4).attr("width", barWidth)
-    .transition(t).attr("y", (d) => y(d.fv)).attr("height", (d) => y(0) - y(d.fv));
-  // city bars
-  g.selectAll(".cbar").data(data, (d) => d.s).join(
-    (enter) => enter.append("rect").attr("class", "cbar").attr("rx", 7).attr("fill", cityColor).attr("x", (d) => d.center + 4).attr("width", barWidth).attr("y", y(0)).attr("height", 0)
-  ).attr("fill", cityColor).attr("x", (d) => d.center + 4).attr("width", barWidth)
-    .transition(t).attr("y", (d) => y(d.cv)).attr("height", (d) => y(0) - y(d.cv));
+  const bars = [];
+  SEASONS.forEach((se, si) => {
+    const center = box.x + groupWidth * si + groupWidth / 2;
+    const totalW = slot * n;
+    series.forEach((s, k) => bars.push({
+      key: `${se}-${k}`, se, color: s.color, v: s.values[se],
+      band: s.band ? { lo: s.band.lo[se], hi: s.band.hi[se] } : null,
+      x: center - totalW / 2 + k * slot
+    }));
+  });
 
-  // morph overlay line connecting city values (the "fingerprint" curve)
-  const lineGen = d3.line().curve(d3.curveCardinal).x((d) => d.center + 4 + barWidth / 2).y((d) => y(d.cv));
-  g.selectAll(".fpline").data([data]).join(
-    (enter) => enter.append("path").attr("class", "fpline").attr("fill", "none").attr("stroke", cityColor).attr("stroke-width", 2.4).attr("opacity", 0.75)
-  ).transition(t).attr("d", lineGen);
-  // hover targets
-  g.selectAll(".fphit").data(data, (d) => d.s).join(
-    (enter) => enter.append("rect").attr("class", "fphit").attr("fill", "transparent")
-  ).attr("x", (d) => d.center - groupWidth / 2).attr("width", groupWidth).attr("y", box.y).attr("height", box.height).style("cursor", "default")
-    .on("mouseenter", (e, d) => showTip(`<strong>${d.s}</strong><span>SD ${profileName()}: ${d.fv.toFixed(label.includes("temp") ? 1 : 0)}</span><span>${cityName}: ${d.cv.toFixed(label.includes("temp") ? 1 : 0)}</span>`, e))
+  g.selectAll(".gbar").data(bars, (d) => d.key).join(
+    (enter) => enter.append("rect").attr("class", "gbar").attr("rx", 5).attr("y", y(0)).attr("height", 0)
+  ).attr("fill", (d) => d.color).attr("x", (d) => d.x).attr("width", bw)
+    .transition(t).attr("y", (d) => y(d.v)).attr("height", (d) => Math.max(0, y(0) - y(d.v)));
+
+  // p10–p90 model-uncertainty whiskers on the San Diego (future) bar
+  const wbars = bars.filter((d) => d.band);
+  const cx = (d) => d.x + bw / 2;
+  g.selectAll(".gwhisk").data(wbars, (d) => d.key).join((e) => e.append("line").attr("class", "gwhisk"))
+    .attr("stroke", COLORS.ink).attr("stroke-width", 1.4).attr("opacity", 0.78)
+    .attr("x1", cx).attr("x2", cx).transition(t).attr("y1", (d) => y(d.band.lo)).attr("y2", (d) => y(d.band.hi));
+  g.selectAll(".gcaplo").data(wbars, (d) => d.key).join((e) => e.append("line").attr("class", "gcaplo"))
+    .attr("stroke", COLORS.ink).attr("stroke-width", 1.4).attr("opacity", 0.78)
+    .attr("x1", (d) => cx(d) - 4).attr("x2", (d) => cx(d) + 4).transition(t).attr("y1", (d) => y(d.band.lo)).attr("y2", (d) => y(d.band.lo));
+  g.selectAll(".gcaphi").data(wbars, (d) => d.key).join((e) => e.append("line").attr("class", "gcaphi"))
+    .attr("stroke", COLORS.ink).attr("stroke-width", 1.4).attr("opacity", 0.78)
+    .attr("x1", (d) => cx(d) - 4).attr("x2", (d) => cx(d) + 4).transition(t).attr("y1", (d) => y(d.band.hi)).attr("y2", (d) => y(d.band.hi));
+
+  // per-season hover targets
+  g.selectAll(".fphit").data(SEASONS, (s) => s).join((e) => e.append("rect").attr("class", "fphit").attr("fill", "transparent"))
+    .attr("x", (s, i) => box.x + groupWidth * i).attr("width", groupWidth).attr("y", box.y).attr("height", box.height).style("cursor", "default")
+    .on("mouseenter", (e, s) => {
+      const dg = isTemp ? 1 : 0;
+      const lines = series.map((ser) => `<span>${ser.name}: ${Number.isFinite(ser.values[s]) ? ser.values[s].toFixed(dg) : "—"}${isTemp ? "°" : " mm"}</span>`).join("");
+      showTip(`<strong>${s}</strong>${lines}`, e);
+    })
     .on("mousemove", moveTip).on("mouseleave", hideTip);
 }
 
-// ───────────────────────── Step 5: difference ─────────────────────────
+// ───────────────────────── Step 5: how long does the twin last? ─────────────────────────
 function drawDifference() {
   const svgNode = byId("differenceSvg");
   const width = 760, height = 500;
-  const margin = { top: 42, right: 56, bottom: 42, left: 144 };
+  const margin = { top: 76, right: 30, bottom: 70, left: 58 };
   svgNode.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svgNode.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const svg = d3.select(svgNode);
-  const selected = selectedRow(); if (!selected) return;
 
-  const futureTemp = futureValues("seasonal_mean_temp_c");
-  const futureRain = futureValues("seasonal_precip_mm");
-  const cityTemp = comparisonValues(selected.city, "seasonal_mean_temp_c");
-  const cityRain = comparisonValues(selected.city, "seasonal_precip_mm");
-  const rows = [
-    ...SEASONS.map((s) => ({ label: `${s} temp`, value: cityTemp[s] - futureTemp[s], unit: "°C", color: COLORS.heat })),
-    ...SEASONS.map((s) => ({ label: `${s} rain`, value: (cityRain[s] - futureRain[s]) / Math.max(20, futureRain[s]) * 100, unit: "%", color: COLORS.rain }))
-  ];
-  const maxAbs = Math.max(8, Math.ceil(Math.max(...rows.map((r) => Math.abs(r.value))) / 10) * 10);
-  const x = d3.scaleLinear([-maxAbs, maxAbs], [margin.left, width - margin.right]);
-  const rowHeight = (height - margin.top - margin.bottom) / rows.length;
-  const t = d3.transition().duration(650).ease(d3.easeCubicOut);
+  // best achievable twin (max Climate Twin Index over present-day cities) for each scenario × period
+  const combos = [];
+  SCENARIOS.forEach((sc) => PERIODS.forEach((per) => {
+    const ft = futureValues("seasonal_mean_temp_c", per, sc.code);
+    const fr = futureValues("seasonal_precip_mm", per, sc.code);
+    const best = comparisonCities().map((c) => scoreForProfile(c, ft, fr)).sort((a, b) => b.index - a.index)[0];
+    combos.push({ scenario: sc.code, scenarioLabel: sc.label, period: per, index: best ? best.index : 0, city: best ? best.city : "—" });
+  }));
 
-  if (svg.select(".diff-bg").empty()) { svg.append("rect").attr("class", "diff-bg").attr("width", width).attr("height", height).attr("rx", 18).attr("fill", COLORS.bg); svg.append("g").attr("class", "diff-axes"); svg.append("g").attr("class", "diff-rows"); svg.append("text").attr("class", "diff-title chart-label selected-label").attr("x", margin.left).attr("y", 24); }
-  svg.select(".diff-title").text(`${selected.city} today minus San Diego ${profileName()}`);
-  const axes = svg.select(".diff-axes");
-  axes.selectAll(".dax").data([-maxAbs, 0, maxAbs]).join("line").attr("class", (d) => `dax ${d === 0 ? "zero-line" : "grid-line"}`).attr("x1", x).attr("x2", x).attr("y1", margin.top - 10).attr("y2", height - margin.bottom);
-  axes.selectAll(".daxl").data([-maxAbs, 0, maxAbs]).join("text").attr("class", "daxl chart-label").attr("text-anchor", "middle").attr("x", x).attr("y", height - 15).text((d) => d);
+  const x0 = d3.scaleBand().domain(SCENARIOS.map((s) => s.code)).range([margin.left, width - margin.right]).paddingInner(0.3).paddingOuter(0.12);
+  const x1 = d3.scaleBand().domain(PERIODS).range([0, x0.bandwidth()]).padding(0.2);
+  const y = d3.scaleLinear([0, 100], [height - margin.bottom, margin.top]);
+  const color = (v) => d3.interpolateRgb(COLORS.heat, COLORS.accent)(clamp(v / 100, 0, 1));
+  const t = d3.transition().duration(700).ease(d3.easeCubicOut);
+  const bx = (d) => x0(d.scenario) + x1(d.period);
+  const isCurrent = (d) => d.scenario === state.scenario && d.period === state.period;
 
-  const g = svg.select(".diff-rows").selectAll(".diff-row").data(rows, (d) => d.label).join((enter) => {
-    const row = enter.append("g").attr("class", "diff-row");
-    row.append("text").attr("class", "rlbl chart-label").attr("text-anchor", "end").attr("x", margin.left - 12);
-    row.append("rect").attr("class", "rbar").attr("rx", 7).attr("opacity", 0.88).attr("x", x(0)).attr("width", 0);
-    row.append("text").attr("class", "rval chart-label selected-label");
-    return row;
+  if (svg.select(".decay-bg").empty()) {
+    svg.append("rect").attr("class", "decay-bg").attr("width", width).attr("height", height).attr("rx", 18).attr("fill", COLORS.bg);
+    svg.append("g").attr("class", "decay-grid");
+    svg.append("g").attr("class", "decay-bars");
+    svg.append("g").attr("class", "decay-axis");
+    svg.append("text").attr("class", "decay-title chart-label selected-label").attr("x", margin.left).attr("y", 30).text("How good is San Diego's best-matching twin?");
+    svg.append("text").attr("class", "decay-sub chart-label").attr("x", margin.left).attr("y", 50).attr("opacity", 0.75).text("Highest Climate Twin Index among all present-day cities — by scenario and period");
+    svg.append("text").attr("class", "chart-label").attr("transform", `translate(16,${(margin.top + height - margin.bottom) / 2}) rotate(-90)`).attr("text-anchor", "middle").text("Best match (0–100)");
+  }
+
+  const grid = svg.select(".decay-grid");
+  grid.selectAll("line").data([0, 25, 50, 75, 100]).join("line").attr("class", "grid-line").attr("x1", margin.left).attr("x2", width - margin.right).attr("y1", y).attr("y2", y);
+  grid.selectAll("text").data([0, 25, 50, 75, 100]).join("text").attr("class", "chart-label").attr("text-anchor", "end").attr("x", margin.left - 8).attr("y", (d) => y(d) + 4).text((d) => d);
+
+  const axis = svg.select(".decay-axis");
+  axis.selectAll(".scglabel").data(SCENARIOS).join("text").attr("class", "scglabel chart-label selected-label").attr("text-anchor", "middle")
+    .attr("x", (s) => x0(s.code) + x0.bandwidth() / 2).attr("y", height - margin.bottom + 38).text((s) => s.code);
+  axis.selectAll(".scglabel2").data(SCENARIOS).join("text").attr("class", "scglabel2 chart-label").attr("text-anchor", "middle").attr("opacity", 0.7)
+    .attr("x", (s) => x0(s.code) + x0.bandwidth() / 2).attr("y", height - margin.bottom + 54).text((s) => s.label);
+
+  const groups = svg.select(".decay-bars").selectAll(".decay-group").data(combos, (d) => d.scenario + d.period).join((enter) => {
+    const grp = enter.append("g").attr("class", "decay-group").style("cursor", "pointer");
+    grp.append("rect").attr("class", "decay-bar").attr("rx", 6).attr("y", y(0)).attr("height", 0);
+    grp.append("text").attr("class", "decay-city chart-label").attr("text-anchor", "middle");
+    grp.append("text").attr("class", "decay-score chart-label selected-label").attr("text-anchor", "middle");
+    grp.append("text").attr("class", "decay-per chart-label").attr("text-anchor", "middle").attr("opacity", 0.75);
+    return grp;
   });
-  g.attr("transform", (d, i) => `translate(0,${margin.top + i * rowHeight + 5})`);
-  g.select(".rlbl").text((d) => d.label).attr("y", rowHeight / 2 + 4);
-  g.select(".rbar").attr("fill", (d) => d.color).attr("height", Math.max(14, rowHeight - 10)).transition(t)
-    .attr("x", (d) => Math.min(x(0), x(d.value))).attr("width", (d) => Math.max(2, Math.abs(x(d.value) - x(0))));
-  g.select(".rval").attr("y", rowHeight / 2 + 4).text((d) => `${d.value > 0 ? "+" : ""}${d.value.toFixed(d.unit === "°C" ? 1 : 0)}${d.unit}`)
-    .attr("text-anchor", (d) => d.value >= 0 ? "start" : "end").transition(t).attr("x", (d) => d.value >= 0 ? x(d.value) + 7 : x(d.value) - 7);
+  groups.select(".decay-bar").attr("x", bx).attr("width", x1.bandwidth()).attr("fill", (d) => color(d.index))
+    .attr("stroke", (d) => isCurrent(d) ? COLORS.ink : "none").attr("stroke-width", (d) => isCurrent(d) ? 3 : 0)
+    .transition(t).attr("y", (d) => y(d.index)).attr("height", (d) => Math.max(0, y(0) - y(d.index)));
+  groups.select(".decay-city").attr("x", (d) => bx(d) + x1.bandwidth() / 2).text((d) => d.city).transition(t).attr("y", (d) => y(d.index) - 22);
+  groups.select(".decay-score").attr("x", (d) => bx(d) + x1.bandwidth() / 2).text((d) => d.index.toFixed(0)).transition(t).attr("y", (d) => y(d.index) - 8);
+  groups.select(".decay-per").attr("x", (d) => bx(d) + x1.bandwidth() / 2).attr("y", height - margin.bottom + 18).text((d) => d.period);
+  groups.on("click", (e, d) => { state.scenario = d.scenario; state.period = d.period; ensureSelectedCity(); updateAll(); })
+    .on("mouseenter", (e, d) => showTip(`<strong>${d.scenarioLabel} · ${d.period}</strong><span>Closest twin: ${d.city}</span><span>Best match ${d.index.toFixed(0)}/100</span>`, e))
+    .on("mousemove", moveTip).on("mouseleave", hideTip);
 }
 
 // ───────────────────────── orchestration ─────────────────────────
@@ -724,7 +829,7 @@ function updateAll() {
   ensureSelectedCity(); setButtonStates(); updateSummary(); drawAll();
 }
 function boot() {
-  if (!rawRecords.length) {
+  if (!Object.keys(CITIES).length) {
     byId("currentFinding").textContent = "Dataset did not load.";
     byId("currentDetail").textContent = "Check that data.js is present next to index.html.";
     return;

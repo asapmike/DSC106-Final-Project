@@ -1,0 +1,235 @@
+record_type,city,lat,lon,scenario,period,season,metric,bound,value,source
+city_location,San Diego,32.7157,-117.1611,,,,,,,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,12.9,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Winter,seasonal_precip_mm,median,180.0,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,15.4,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Spring,seasonal_precip_mm,median,82.0,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,20.0,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Summer,seasonal_precip_mm,median,7.0,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,18.5,ERA5/Open-Meteo
+present_profile,San Diego,32.7157,-117.1611,Historical,1991-2020,Fall,seasonal_precip_mm,median,42.0,ERA5/Open-Meteo
+city_location,Los Angeles,34.0522,-118.2437,,,,,,,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,12.2,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Winter,seasonal_precip_mm,median,219.0,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,16.4,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Spring,seasonal_precip_mm,median,84.0,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,23.4,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Summer,seasonal_precip_mm,median,5.0,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,19.6,ERA5/Open-Meteo
+present_profile,Los Angeles,34.0522,-118.2437,Historical,1991-2020,Fall,seasonal_precip_mm,median,40.0,ERA5/Open-Meteo
+city_location,Riverside,33.9806,-117.3755,,,,,,,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,10.9,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Winter,seasonal_precip_mm,median,268.0,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,16.0,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Spring,seasonal_precip_mm,median,107.0,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,24.4,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Summer,seasonal_precip_mm,median,7.0,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,19.4,ERA5/Open-Meteo
+present_profile,Riverside,33.9806,-117.3755,Historical,1991-2020,Fall,seasonal_precip_mm,median,57.0,ERA5/Open-Meteo
+city_location,Phoenix,33.4484,-112.074,,,,,,,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,12.2,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Winter,seasonal_precip_mm,median,99.0,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,22.6,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Spring,seasonal_precip_mm,median,38.0,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,34.1,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Summer,seasonal_precip_mm,median,49.0,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,23.9,ERA5/Open-Meteo
+present_profile,Phoenix,33.4484,-112.074,Historical,1991-2020,Fall,seasonal_precip_mm,median,63.0,ERA5/Open-Meteo
+city_location,Fresno,36.7378,-119.7871,,,,,,,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,9.3,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Winter,seasonal_precip_mm,median,227.0,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,17.1,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Spring,seasonal_precip_mm,median,124.0,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,27.9,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Summer,seasonal_precip_mm,median,7.0,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,19.2,ERA5/Open-Meteo
+present_profile,Fresno,36.7378,-119.7871,Historical,1991-2020,Fall,seasonal_precip_mm,median,59.0,ERA5/Open-Meteo
+city_location,Tucson,32.2226,-110.9747,,,,,,,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,11.5,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Winter,seasonal_precip_mm,median,89.0,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,21.0,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Spring,seasonal_precip_mm,median,26.0,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,31.0,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Summer,seasonal_precip_mm,median,74.0,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,22.3,ERA5/Open-Meteo
+present_profile,Tucson,32.2226,-110.9747,Historical,1991-2020,Fall,seasonal_precip_mm,median,63.0,ERA5/Open-Meteo
+city_location,Seattle,47.6062,-122.3321,,,,,,,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,4.4,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Winter,seasonal_precip_mm,median,469.0,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,9.5,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Spring,seasonal_precip_mm,median,322.0,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,17.6,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Summer,seasonal_precip_mm,median,118.0,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,11.1,ERA5/Open-Meteo
+present_profile,Seattle,47.6062,-122.3321,Historical,1991-2020,Fall,seasonal_precip_mm,median,387.0,ERA5/Open-Meteo
+city_location,Las Vegas,36.1699,-115.1398,,,,,,,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,8.9,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Winter,seasonal_precip_mm,median,71.0,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,19.4,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Spring,seasonal_precip_mm,median,28.0,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,31.9,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Summer,seasonal_precip_mm,median,17.0,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,20.5,ERA5/Open-Meteo
+present_profile,Las Vegas,36.1699,-115.1398,Historical,1991-2020,Fall,seasonal_precip_mm,median,26.0,ERA5/Open-Meteo
+city_location,Sacramento,38.5816,-121.4944,,,,,,,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,8.9,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Winter,seasonal_precip_mm,median,344.0,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,15.6,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Spring,seasonal_precip_mm,median,158.0,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,24.0,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Summer,seasonal_precip_mm,median,6.0,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,17.7,ERA5/Open-Meteo
+present_profile,Sacramento,38.5816,-121.4944,Historical,1991-2020,Fall,seasonal_precip_mm,median,92.0,ERA5/Open-Meteo
+city_location,San Francisco,37.7749,-122.4194,,,,,,,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Winter,seasonal_mean_temp_c,median,10.0,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Winter,seasonal_precip_mm,median,286.0,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Spring,seasonal_mean_temp_c,median,12.8,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Spring,seasonal_precip_mm,median,129.0,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Summer,seasonal_mean_temp_c,median,16.3,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Summer,seasonal_precip_mm,median,5.0,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Fall,seasonal_mean_temp_c,median,15.0,ERA5/Open-Meteo
+present_profile,San Francisco,37.7749,-122.4194,Historical,1991-2020,Fall,seasonal_precip_mm,median,70.0,ERA5/Open-Meteo
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_mean_temp_c,median,14.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_precip_mm,median,193.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_mean_temp_c,lo,13.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_precip_mm,lo,161.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_mean_temp_c,hi,14.9,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Winter,seasonal_precip_mm,hi,211.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_mean_temp_c,median,16.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_precip_mm,median,87.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_mean_temp_c,lo,15.8,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_precip_mm,lo,77.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_mean_temp_c,hi,17.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Spring,seasonal_precip_mm,hi,92.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_mean_temp_c,median,21.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_precip_mm,median,7.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_mean_temp_c,lo,20.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_mean_temp_c,hi,22.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Summer,seasonal_precip_mm,hi,9.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_mean_temp_c,median,20.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_precip_mm,median,43.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_mean_temp_c,lo,19.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_precip_mm,lo,33.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_mean_temp_c,hi,21.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2050,Fall,seasonal_precip_mm,hi,47.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_mean_temp_c,median,14.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_precip_mm,median,195.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_mean_temp_c,lo,13.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_precip_mm,lo,161.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_mean_temp_c,hi,15.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Winter,seasonal_precip_mm,hi,218.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_mean_temp_c,median,16.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_precip_mm,median,86.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_mean_temp_c,lo,15.8,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_precip_mm,lo,71.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_mean_temp_c,hi,17.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Spring,seasonal_precip_mm,hi,97.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_mean_temp_c,median,21.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_precip_mm,median,8.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_mean_temp_c,lo,20.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_mean_temp_c,hi,22.8,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Summer,seasonal_precip_mm,hi,9.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_mean_temp_c,median,20.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_precip_mm,median,43.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_mean_temp_c,lo,19.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_precip_mm,lo,35.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_mean_temp_c,hi,21.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP1-2.6,2080s,Fall,seasonal_precip_mm,hi,49.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_mean_temp_c,median,14.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_precip_mm,median,187.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_mean_temp_c,lo,13.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_precip_mm,lo,165.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_mean_temp_c,hi,15.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Winter,seasonal_precip_mm,hi,210.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_mean_temp_c,median,16.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_precip_mm,median,82.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_mean_temp_c,lo,16.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_precip_mm,lo,72.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_mean_temp_c,hi,17.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Spring,seasonal_precip_mm,hi,88.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_mean_temp_c,median,21.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_precip_mm,median,7.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_mean_temp_c,lo,21.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_mean_temp_c,hi,22.8,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Summer,seasonal_precip_mm,hi,9.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_mean_temp_c,median,20.3,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_precip_mm,median,43.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_mean_temp_c,lo,19.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_precip_mm,lo,39.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_mean_temp_c,hi,21.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2050,Fall,seasonal_precip_mm,hi,51.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_mean_temp_c,median,15.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_precip_mm,median,186.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_mean_temp_c,lo,14.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_precip_mm,lo,163.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_mean_temp_c,hi,16.3,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Winter,seasonal_precip_mm,hi,214.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_mean_temp_c,median,17.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_precip_mm,median,85.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_mean_temp_c,lo,16.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_precip_mm,lo,74.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_mean_temp_c,hi,18.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Spring,seasonal_precip_mm,hi,94.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_mean_temp_c,median,22.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_precip_mm,median,8.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_mean_temp_c,lo,21.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_mean_temp_c,hi,23.9,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Summer,seasonal_precip_mm,hi,10.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_mean_temp_c,median,21.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_precip_mm,median,42.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_mean_temp_c,lo,20.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_precip_mm,lo,39.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_mean_temp_c,hi,22.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP2-4.5,2080s,Fall,seasonal_precip_mm,hi,52.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_mean_temp_c,median,14.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_precip_mm,median,195.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_mean_temp_c,lo,13.9,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_precip_mm,lo,178.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_mean_temp_c,hi,15.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Winter,seasonal_precip_mm,hi,222.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_mean_temp_c,median,17.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_precip_mm,median,82.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_mean_temp_c,lo,16.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_precip_mm,lo,73.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_mean_temp_c,hi,17.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Spring,seasonal_precip_mm,hi,97.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_mean_temp_c,median,22.3,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_precip_mm,median,7.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_mean_temp_c,lo,21.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_mean_temp_c,hi,23.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Summer,seasonal_precip_mm,hi,9.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_mean_temp_c,median,21.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_precip_mm,median,40.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_mean_temp_c,lo,20.2,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_precip_mm,lo,33.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_mean_temp_c,hi,22.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2050,Fall,seasonal_precip_mm,hi,48.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_mean_temp_c,median,16.8,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_precip_mm,median,201.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_mean_temp_c,lo,15.5,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_precip_mm,lo,172.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_mean_temp_c,hi,18.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Winter,seasonal_precip_mm,hi,228.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_mean_temp_c,median,19.6,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_precip_mm,median,79.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_mean_temp_c,lo,18.4,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_precip_mm,lo,69.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_mean_temp_c,hi,20.7,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Spring,seasonal_precip_mm,hi,89.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_mean_temp_c,median,25.1,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_precip_mm,median,8.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_mean_temp_c,lo,24.3,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_precip_mm,lo,6.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_mean_temp_c,hi,27.3,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Summer,seasonal_precip_mm,hi,13.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_mean_temp_c,median,24.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_precip_mm,median,41.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_mean_temp_c,lo,21.9,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_precip_mm,lo,33.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_mean_temp_c,hi,26.0,CCKP-CMIP6/WorldBank
+future_profile,San Diego,32.7157,-117.1611,SSP5-8.5,2080s,Fall,seasonal_precip_mm,hi,52.0,CCKP-CMIP6/WorldBank
