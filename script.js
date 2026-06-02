@@ -39,27 +39,27 @@ const VIEW_META = {
   trajectory: {
     label: "Step 1 of 5",
     question: "How does San Diego's future climate move?",
-    annotation: "The path runs from San Diego today to San Diego in your selected future period. Every other city is plotted at its present-day climate — choose 2050 or the 2080s to see how far the path reaches."
+    annotation: "The path runs from San Diego today to San Diego in your selected future period. Every other city is plotted at its present-day climate, choose 2050 or the 2080s to see how far the path reaches."
   },
   ranking: {
     label: "Step 2 of 5",
     question: "Which city is the closest climate twin?",
-    annotation: "Los Angeles, then Riverside — not the desert cities. The ranking re-sorts when you change the scenario, the period, or the weights below."
+    annotation: "Los Angeles, then Riverside, not the desert cities. The ranking re-sorts when you change the scenario, the period, or the weights below."
   },
   map: {
     label: "Step 3 of 5",
     question: "When does San Diego's climate arrive in Los Angeles?",
-    annotation: "Drag the year or press play. The marker is San Diego's projected climate; it slides to whichever nearby city — Los Angeles or Riverside — it most resembles that year."
+    annotation: "Drag the year or press play. The marker is San Diego's projected climate; it slides to whichever nearby city, Los Angeles or Riverside, it most resembles that year."
   },
   fingerprint: {
     label: "Step 4 of 5",
     question: "How does San Diego's future compare with its two closest twins?",
-    annotation: "San Diego's projection sits beside Los Angeles and Riverside today, season by season. Whiskers show the model range — a city can match on temperature yet still differ on rainfall."
+    annotation: "San Diego's projection sits beside Los Angeles and Riverside today, season by season. Whiskers show the model range. A city can match on temperature yet still differ on rainfall."
   },
   difference: {
     label: "Step 5 of 5",
     question: "How long does the twin last?",
-    annotation: "Each bar is the best match San Diego can find in that scenario and period. Under high emissions by the 2080s, even the closest twin barely fits — San Diego runs off the map of today's cities."
+    annotation: "Each bar is the best match San Diego can find in that scenario and period. Under high emissions by the 2080s, even the closest twin barely fits, San Diego runs off the map of today's cities."
   }
 };
 
@@ -235,6 +235,12 @@ function updateWeightPcts() {
   const w = normWeights();
   document.querySelectorAll("[data-weight-pct]").forEach((el) => { el.textContent = Math.round(w[el.dataset.weightPct] * 100) + "%"; });
 }
+let weightRaf = null;
+function scheduleWeightUpdate() {
+  updateWeightPcts();                       // cheap: update % labels immediately
+  if (weightRaf) return;                    // coalesce chart redraws to one per frame
+  weightRaf = requestAnimationFrame(() => { weightRaf = null; updateAll(); });
+}
 function syncWeightSliders() {
   document.querySelectorAll("[data-weight]").forEach((el) => { el.value = String(Math.round(state.weights[el.dataset.weight] * 100)); });
   updateWeightPcts();
@@ -262,16 +268,8 @@ function initControls() {
     b.addEventListener("click", () => { state.period = period; ensureSelectedCity(); updateAll(); });
     periodButtons.appendChild(b);
   });
-  const metricButtons = byId("metricButtons");
-  METRICS.forEach((metric) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "control-button metric-button"; b.dataset.metric = metric.key;
-    b.textContent = metric.label; b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => { state.metric = metric.key; updateAll(); });
-    metricButtons.appendChild(b);
-  });
 
-  // Weight sliders — let the reader redefine what "similar" means
+  // Weight sliders, let the reader redefine what "similar" means
   const weightWrap = byId("weightSliders");
   if (weightWrap) {
     WEIGHT_DEFS.forEach((wd) => {
@@ -287,7 +285,7 @@ function initControls() {
       input.setAttribute("aria-label", `${wd.label} weight`);
       const pct = document.createElement("span");
       pct.className = "weight-pct"; pct.dataset.weightPct = wd.key;
-      input.addEventListener("input", () => { state.weights[wd.key] = Number(input.value) / 100; updateWeightPcts(); updateAll(); });
+      input.addEventListener("input", () => { state.weights[wd.key] = Number(input.value) / 100; scheduleWeightUpdate(); });
       row.appendChild(name); row.appendChild(input); row.appendChild(pct);
       weightWrap.appendChild(row);
     });
@@ -361,6 +359,25 @@ function climatePointForSeasonal(label, tempValues, precipValues, extra = {}) {
   return { label, avgTemp: mean(SEASONS.map((s) => tempValues[s])), annualPrecip: sum(SEASONS.map((s) => precipValues[s])), ...extra };
 }
 
+// Nudge overlapping scatter labels apart vertically (cheap iterative de-collision).
+function declutterLabels(labels, gap, minY, maxY) {
+  for (let iter = 0; iter < 60; iter++) {
+    labels.sort((a, b) => a.y - b.y);
+    let moved = false;
+    for (let i = 0; i < labels.length; i++) {
+      for (let j = i + 1; j < labels.length; j++) {
+        const a = labels[i], b = labels[j];
+        if (a.x < b.x + b.w && b.x < a.x + a.w && Math.abs(b.y - a.y) < gap) {
+          const push = (gap - Math.abs(b.y - a.y)) / 2 + 0.4;
+          a.y -= push; b.y += push; moved = true;
+        }
+      }
+    }
+    labels.forEach((d) => { d.y = clamp(d.y, minY, maxY); });
+    if (!moved) break;
+  }
+}
+
 // ───────────────────────── Step 1: trajectory ─────────────────────────
 function drawTrajectory() {
   const svgNode = byId("trajectorySvg");
@@ -389,6 +406,7 @@ function drawTrajectory() {
     svg.append("path").attr("class", "traj-path").attr("fill", "none").attr("stroke", COLORS.accent).attr("stroke-width", 4).attr("stroke-linecap", "round").attr("stroke-linejoin", "round");
     svg.append("g").attr("class", "city-layer");
     svg.append("g").attr("class", "sd-layer");
+    svg.append("g").attr("class", "label-layer");
     svg.append("text").attr("class", "chart-label").attr("x", (margin.left + width - margin.right) / 2).attr("y", height - 18).attr("text-anchor", "middle").text("Average seasonal temperature (°C)");
     svg.append("text").attr("class", "chart-label").attr("x", margin.left).attr("y", 20).text("Annual precipitation (mm)");
   }
@@ -400,7 +418,7 @@ function drawTrajectory() {
   grid.selectAll(".gy").data(yTicks).join("line").attr("class", "gy grid-line").attr("x1", margin.left).attr("x2", width - margin.right).attr("y1", y).attr("y2", y);
   grid.selectAll(".gyl").data(yTicks).join("text").attr("class", "gyl chart-label").attr("text-anchor", "end").attr("x", margin.left - 10).attr("y", (d) => y(d) + 4).text((d) => d);
 
-  // model-uncertainty boxes on the future anchors (p10–p90 spread across the CMIP6 ensemble)
+  // model-uncertainty boxes on the future anchors (p10 to p90 spread across the CMIP6 ensemble)
   const bandBoxes = [state.period].map((P) => {
     const tb = futureBand("seasonal_mean_temp_c", P), pb = futureBand("seasonal_precip_mm", P);
     if (!tb || !pb) return null;
@@ -428,11 +446,6 @@ function drawTrajectory() {
     .on("mousemove", moveTip).on("mouseleave", hideTip)
     .on("click", (e, d) => { state.selectedCity = d.label; updateAll(); });
 
-  // city labels — every comparison city, marked "today"
-  svg.select(".city-layer").selectAll(".clbl").data(cityPoints, (d) => d.label)
-    .join("text").attr("class", (d) => `clbl chart-label ${d.label === state.selectedCity ? "selected-label" : "today-label"}`).text((d) => `${d.label} today`)
-    .transition().duration(600).attr("x", (d) => x(d.avgTemp) + 9).attr("y", (d) => y(d.annualPrecip) - 7);
-
   // SD trajectory path with draw-on animation
   const line = d3.line().x((d) => x(d.avgTemp)).y((d) => y(d.annualPrecip));
   const path = svg.select(".traj-path").attr("d", line(sdPoints));
@@ -447,9 +460,27 @@ function drawTrajectory() {
     (update) => update.call((s) => s.transition().duration(700).attr("cx", (d) => x(d.avgTemp)).attr("cy", (d) => y(d.annualPrecip)))
   ).attr("fill", (d, i) => i === 0 ? COLORS.surface : COLORS.accent).attr("stroke", COLORS.ink).attr("stroke-width", 2);
 
-  svg.select(".sd-layer").selectAll(".sdlbl").data(sdPoints, (d) => d.label).join("text")
-    .attr("class", "sdlbl chart-label selected-label").text((d) => d.label)
-    .transition().duration(700).attr("x", (d) => x(d.avgTemp) + 11).attr("y", (d, i) => y(d.annualPrecip) + (i === 0 ? 18 : -10));
+  // unified, de-cluttered labels with leader lines (fixes overlap when cities sit close in climate space)
+  const labelData = [
+    ...cityPoints.map((d) => ({ text: `${d.label} today`, ax: x(d.avgTemp), ay: y(d.annualPrecip), strong: d.label === state.selectedCity })),
+    ...sdPoints.map((d, i) => ({ text: d.label, ax: x(d.avgTemp), ay: y(d.annualPrecip), strong: true, below: i === 0 }))
+  ];
+  labelData.forEach((d) => {
+    d.w = d.text.length * (d.strong ? 6.7 : 5.9) + 4;
+    d.right = d.ax + 12 + d.w <= width - 6;
+    d.x = d.right ? d.ax + 10 : d.ax - 10 - d.w;
+    d.y = d.ay + (d.below ? 17 : -7);
+  });
+  declutterLabels(labelData, 14, margin.top + 6, height - margin.bottom - 4);
+  const ll = svg.select(".label-layer");
+  ll.selectAll(".llead").data(labelData).join("line").attr("class", "llead")
+    .attr("stroke", COLORS.faint).attr("stroke-width", 1)
+    .attr("opacity", (d) => (Math.abs((d.y - 4) - d.ay) > 9 || !d.right) ? 0.55 : 0)
+    .attr("x1", (d) => d.ax).attr("y1", (d) => d.ay)
+    .attr("x2", (d) => d.right ? d.x - 2 : d.x + d.w + 2).attr("y2", (d) => d.y - 4);
+  ll.selectAll(".llbl").data(labelData).join("text")
+    .attr("class", (d) => `llbl chart-label ${d.strong ? "selected-label" : "today-label"}`)
+    .attr("text-anchor", "start").attr("x", (d) => d.x).attr("y", (d) => d.y).text((d) => d.text);
 }
 
 // ───────────────────────── Step 2: ranking ─────────────────────────
@@ -574,7 +605,7 @@ function drawMap() {
     const row = rowsByCity.get(d.city);
     const isSD = d.city === "San Diego";
     const isSel = d.city === state.selectedCity;
-    const score = row ? row[state.metric] : undefined;
+    const score = row ? row.index : undefined;
     const sel = d3.select(this);
     sel.select("circle")
       .attr("r", isSD ? 9 : row ? 5 + row.index / 9 : 5)
@@ -586,11 +617,11 @@ function drawMap() {
       .attr("x", 9).attr("y", -9).text(row || isSD ? d.city : "")
       .attr("opacity", row || isSD ? 1 : 0);
     sel.attr("tabindex", row ? 0 : -1).attr("role", row ? "button" : "img")
-      .attr("aria-label", row ? `${d.city}, ${metricLabel()} ${score.toFixed(1)}` : d.city);
+      .attr("aria-label", row ? `${d.city}, climate match ${score.toFixed(1)}` : d.city);
     if (row) {
       sel.on("click", () => { state.selectedCity = d.city; updateAll(); })
         .on("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); state.selectedCity = d.city; updateAll(); } })
-        .on("mouseenter", (e) => showTip(`<strong>${d.city}</strong><span>${metricLabel()} ${score.toFixed(0)}/100</span>`, e))
+        .on("mouseenter", (e) => showTip(`<strong>${d.city}</strong><span>Climate match ${score.toFixed(0)}/100</span>`, e))
         .on("mousemove", moveTip).on("mouseleave", hideTip);
     } else { sel.on("mouseenter", null).on("mouseleave", null); }
   });
@@ -601,7 +632,7 @@ function drawMap() {
   ghost.append("circle").attr("class", "ghost-core").attr("r", 7).attr("fill", COLORS.heat).attr("stroke", "#fff").attr("stroke-width", 2);
   ghost.append("text").attr("class", "ghost-label map-label selected-label").attr("y", -16).attr("text-anchor", "middle");
 
-  svg.append("text").attr("class", "chart-label selected-label").attr("x", width - 26).attr("y", 26).attr("text-anchor", "end").text(`Color: ${metricLabel()}`);
+  svg.append("text").attr("class", "chart-label selected-label").attr("x", width - 26).attr("y", 26).attr("text-anchor", "end").text("Darker = closer climate match");
 
   updateTravel(false);
 }
@@ -672,12 +703,17 @@ function drawFingerprint() {
   svgNode.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const svg = d3.select(svgNode);
 
-  const twins = rankingRows().slice(0, 2);            // the two closest twins (Los Angeles, Riverside by default)
-  if (!twins.length) return;
+  const ranked = rankingRows();
+  if (!ranked.length) return;
+  const names = ranked.map((r) => r.city);
+  // Primary = the selected city (defaults to the top twin, Los Angeles); secondary = next-best twin.
+  const primary = (state.selectedCity && names.includes(state.selectedCity)) ? state.selectedCity : names[0];
+  const secondary = names.find((c) => c !== primary) || names[0];
+  const twinCities = [primary, secondary];
   const twinColors = [COLORS.heat, COLORS.rain];
   const mkSeries = (metric) => [
     { name: `San Diego ${profileName()}`, values: futureValues(metric), color: COLORS.accent, band: futureBand(metric) },
-    ...twins.map((tw, i) => ({ name: `${tw.city} today`, values: comparisonValues(tw.city, metric), color: twinColors[i] }))
+    ...twinCities.map((c, i) => ({ name: `${c} today`, values: comparisonValues(c, metric), color: twinColors[i] }))
   ];
 
   if (svg.select(".fp-bg").empty()) {
@@ -687,7 +723,7 @@ function drawFingerprint() {
     svg.append("g").attr("class", "fp-legend");
   }
   const legend = svg.select(".fp-legend"); legend.selectAll("*").remove();
-  const legendItems = [{ name: `San Diego ${profileName()}`, color: COLORS.accent }, ...twins.map((tw, i) => ({ name: `${tw.city} today`, color: twinColors[i] }))];
+  const legendItems = [{ name: `San Diego ${profileName()}`, color: COLORS.accent }, ...twinCities.map((c, i) => ({ name: `${c} today`, color: twinColors[i] }))];
   legendItems.forEach((it, i) => {
     const ly = 18 + i * 19;
     legend.append("rect").attr("x", width - 252).attr("y", ly - 10).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", it.color);
@@ -695,7 +731,7 @@ function drawFingerprint() {
   });
   const wy = 18 + legendItems.length * 19;
   legend.append("line").attr("x1", width - 246).attr("x2", width - 246).attr("y1", wy - 9).attr("y2", wy + 5).attr("stroke", COLORS.ink).attr("stroke-width", 1.4).attr("opacity", 0.78);
-  legend.append("text").attr("class", "chart-label").attr("x", width - 234).attr("y", wy + 2).text("Model range (p10–p90)");
+  legend.append("text").attr("class", "chart-label").attr("x", width - 234).attr("y", wy + 2).text("Model range (p10 to p90)");
 
   drawGroupedBars(svg.select(".fp-temp"), { x: margin.left, y: 64, width: width - margin.left - margin.right, height: 156 }, mkSeries("seasonal_mean_temp_c"), "Seasonal temperature (°C)");
   drawGroupedBars(svg.select(".fp-rain"), { x: margin.left, y: 290, width: width - margin.left - margin.right, height: 156 }, mkSeries("seasonal_precip_mm"), "Seasonal precipitation (mm)");
@@ -732,7 +768,7 @@ function drawGroupedBars(g, box, series, label) {
   ).attr("fill", (d) => d.color).attr("x", (d) => d.x).attr("width", bw)
     .transition(t).attr("y", (d) => y(d.v)).attr("height", (d) => Math.max(0, y(0) - y(d.v)));
 
-  // p10–p90 model-uncertainty whiskers on the San Diego (future) bar
+  // p10 to p90 model-uncertainty whiskers on the San Diego (future) bar
   const wbars = bars.filter((d) => d.band);
   const cx = (d) => d.x + bw / 2;
   g.selectAll(".gwhisk").data(wbars, (d) => d.key).join((e) => e.append("line").attr("class", "gwhisk"))
@@ -788,8 +824,13 @@ function drawDifference() {
     svg.append("g").attr("class", "decay-bars");
     svg.append("g").attr("class", "decay-axis");
     svg.append("text").attr("class", "decay-title chart-label selected-label").attr("x", margin.left).attr("y", 30).text("How good is San Diego's best-matching twin?");
-    svg.append("text").attr("class", "decay-sub chart-label").attr("x", margin.left).attr("y", 50).attr("opacity", 0.75).text("Highest Climate Twin Index among all present-day cities — by scenario and period");
-    svg.append("text").attr("class", "chart-label").attr("transform", `translate(16,${(margin.top + height - margin.bottom) / 2}) rotate(-90)`).attr("text-anchor", "middle").text("Best match (0–100)");
+    svg.append("text").attr("class", "decay-sub chart-label").attr("x", margin.left).attr("y", 50).attr("opacity", 0.75).text("Highest Climate Twin Index among all present-day cities, by scenario and period");
+    svg.append("text").attr("class", "chart-label").attr("transform", `translate(16,${(margin.top + height - margin.bottom) / 2}) rotate(-90)`).attr("text-anchor", "middle").text("Best match (0 to 100)");
+    const dleg = svg.append("g").attr("class", "decay-legend");
+    dleg.append("rect").attr("x", width - 204).attr("y", 22).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", COLORS.heat);
+    dleg.append("text").attr("class", "chart-label").attr("x", width - 188).attr("y", 32).text("weak");
+    dleg.append("rect").attr("x", width - 138).attr("y", 22).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", COLORS.accent);
+    dleg.append("text").attr("class", "chart-label").attr("x", width - 122).attr("y", 32).text("strong match");
   }
 
   const grid = svg.select(".decay-grid");
