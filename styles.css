@@ -125,7 +125,7 @@ textarea {
   max-width: var(--max);
   margin: 5.4rem auto 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.26fr) minmax(300px, 0.74fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(1.5rem, 4vw, 4rem);
   align-items: end;
 }
@@ -222,6 +222,11 @@ h4 {
   color: var(--ink);
   border: 1px solid var(--line);
   background: rgba(251, 252, 247, 0.78);
+}
+
+.result-section .summary-card {
+  max-width: 620px;
+  margin: 1.2rem 0 0;
 }
 
 .summary-card {

@@ -33,11 +33,6 @@
           <a class="secondary-link" href="#methodology">How the index works</a>
         </div>
       </div>
-      <aside class="summary-card" aria-label="Current climate twin summary">
-        <span class="label">Current result</span>
-        <strong id="currentFinding">Loading Climate Twin Index...</strong>
-        <p id="currentDetail">The story will update after the dataset loads.</p>
-      </aside>
     </div>
   </header>
 
@@ -67,8 +62,8 @@
             <p>This is climate space: warmer to the right, wetter toward the top. The teal line traces San Diego from today to your chosen future, pick 2050 or the 2080s to see how far it travels. Every other city sits at its climate <em>today</em>.</p>
             <ul>
               <li>The dashed box is the model's range of futures.</li>
-              <li>Whichever cities the path lands near are the candidate twins.</li>
-              <li>Switch low → high emissions to push the path further.</li>
+              <li>A catch: these axes are only annual averages. The dot that looks nearest, often a desert city like Tucson, may be a poor twin once seasons and summer heat count.</li>
+              <li>Step 2 settles it with the full seasonal pattern.</li>
             </ul>
           </div>
 
@@ -86,8 +81,9 @@
           <div class="story-step" data-view="map">
             <span class="step-kicker">Step 3 of 5</span>
             <h3>Watch the climate travel.</h3>
-            <p>Zoomed in on the two closest twins. The orange marker is San Diego's projected climate; drag the year or press play and it slides north to whichever city it most resembles, Los Angeles or Riverside.</p>
+            <p>Zoomed in on San Diego and its two closest twins. The orange marker is San Diego's projected climate; drag the year or press play and it lifts off San Diego, gliding toward whichever city it grows to resemble, Los Angeles, then leaning toward Riverside late in the century.</p>
             <ul>
+              <li>Early years: the marker sits on San Diego, its climate still feels like its own.</li>
               <li>Press play to send San Diego's climate across the decades.</li>
               <li>The cities are barely 150 km apart, but climate distance is the point.</li>
             </ul>
@@ -151,7 +147,7 @@
               <svg id="trajectorySvg" class="viz" role="img" aria-label="Climate-space plot showing San Diego today and its selected future period, with present-day cities labelled"></svg>
               <div class="panel-insight">
                 <strong>Read this first</strong>
-                <p>The path connects San Diego today to its chosen future. Other cities sit at their present-day climate, so nearness here is a quick read on resemblance, the Climate Twin Index in Step 2 refines it season by season.</p>
+                <p>Each city is collapsed to two numbers, its average temperature and yearly rainfall, so a hot, dry desert city can land right next to San Diego's future even though its scorching summers and monsoon rains feel nothing alike. The Climate Twin Index in Step 2 compares all four seasons and summer heat, which is why the closest dot here is not always the real twin.</p>
               </div>
             </div>
 
@@ -175,7 +171,7 @@
               <p class="travel-readout" id="travelReadout"></p>
               <div class="panel-insight">
                 <strong>Map caveat</strong>
-                <p>Zoomed to the two closest twins. The orange marker is San Diego's projected climate; it slides to whichever city, Los Angeles or Riverside, it most resembles in the chosen year. These cities sit within ~150 km of each other, so this is climate distance, not map distance.</p>
+                <p>The orange marker is San Diego's projected climate, placed by how closely it matches each city that year. It begins on San Diego and is pulled toward Los Angeles or Riverside as the projection warms. These cities sit within ~150 km of each other, so this is climate distance, not map distance.</p>
               </div>
             </div>
 
@@ -265,6 +261,15 @@
       <h2 id="data-title">Real, public climate data, no placeholders</h2>
       <p>Present-day climate for all ten cities comes from <strong>ERA5 reanalysis</strong> (1991-2020 climatology) sampled at each city's coordinates via the Open-Meteo archive. San Diego's future comes from the <strong>CMIP6 multi-model ensemble</strong> (SSP1-2.6, SSP2-4.5, SSP5-8.5; mid-century and end-of-century) via the World Bank Climate Change Knowledge Portal, with p10 / median / p90 percentiles for the uncertainty band.</p>
       <p>The shipped <code>thunder4champ_climate_dataset.csv</code> holds the real long-format values (200+ rows across 11 columns), and the pipeline is fully reproducible: <code>fetch_era5.py</code> + <code>fetch_cckp.py</code> + <code>build_data.py</code> rebuild <code>data.js</code> directly from those public APIs.</p>
+    </section>
+    <section class="info-section result-section" aria-labelledby="result-title">
+      <p class="eyebrow">Where you left it</p>
+      <h2 id="result-title">Your current result</h2>
+      <aside class="summary-card" aria-label="Current climate twin summary" aria-live="polite">
+        <span class="label">Current result</span>
+        <strong id="currentFinding">Loading Climate Twin Index...</strong>
+        <p id="currentDetail">The story will update after the dataset loads.</p>
+      </aside>
     </section>
   </main>
 

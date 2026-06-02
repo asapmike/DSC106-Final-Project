@@ -39,7 +39,7 @@ const VIEW_META = {
   trajectory: {
     label: "Step 1 of 5",
     question: "How does San Diego's future climate move?",
-    annotation: "The path runs from San Diego today to San Diego in your selected future period. Every other city is plotted at its present-day climate, choose 2050 or the 2080s to see how far the path reaches."
+    annotation: "The path runs from San Diego today to its selected future period. Every other city sits at its present-day climate. This view only plots annual averages, so the nearest dot is just a first guess, Step 2 compares the full seasonal pattern and can change the answer."
   },
   ranking: {
     label: "Step 2 of 5",
@@ -49,7 +49,7 @@ const VIEW_META = {
   map: {
     label: "Step 3 of 5",
     question: "When does San Diego's climate arrive in Los Angeles?",
-    annotation: "Drag the year or press play. The marker is San Diego's projected climate; it slides to whichever nearby city, Los Angeles or Riverside, it most resembles that year."
+    annotation: "Drag the year or press play. The marker starts on San Diego and drifts toward whichever nearby city, Los Angeles or Riverside, its climate grows to resemble that year."
   },
   fingerprint: {
     label: "Step 4 of 5",
@@ -350,7 +350,7 @@ function updateSummary() {
   }
   const scenario = scenarioMeta();
   byId("currentFinding").textContent = `${state.period} ${scenario.label}: closest twin is ${top.city}.`;
-  byId("currentDetail").textContent = `${selected.city} is selected with a Climate Twin Index of ${selected.index.toFixed(1)} out of 100. Phoenix is not automatically the best match because seasonal rainfall and temperature pattern are included.`;
+  byId("currentDetail").textContent = `${selected.city} is selected with a Climate Twin Index of ${selected.index.toFixed(1)} out of 100. The desert cities rank lower because the index compares full seasonal patterns and summer heat, not just annual averages.`;
   byId("selectedTwinBadge").textContent = `${state.selectedCity}: ${selected.index.toFixed(1)}`;
 }
 
@@ -432,15 +432,18 @@ function drawTrajectory() {
     .attr("y", (d) => Math.min(d.ylo, d.yhi)).attr("height", (d) => Math.max(2, Math.abs(d.ylo - d.yhi)));
 
   // city dots
+  // All comparison cities are plotted uniformly here. Step 1 deliberately names no winner,
+  // because annual averages alone are a misleading guide (the nearest dot is often a desert
+  // city whose seasonal pattern and summer heat make it a poor twin). Step 2 picks the twin.
   const cd = svg.select(".city-layer").selectAll(".cdot").data(cityPoints, (d) => d.label);
   cd.join(
     (enter) => enter.append("circle").attr("class", "cdot").attr("cx", (d) => x(d.avgTemp)).attr("cy", (d) => y(d.annualPrecip)).attr("r", 0)
-      .call((s) => s.transition().duration(600).attr("r", (d) => d.label === state.selectedCity ? 9 : 5.5)),
-    (update) => update.call((s) => s.transition().duration(600).attr("cx", (d) => x(d.avgTemp)).attr("cy", (d) => y(d.annualPrecip)).attr("r", (d) => d.label === state.selectedCity ? 9 : 5.5))
+      .call((s) => s.transition().duration(600).attr("r", 6)),
+    (update) => update.call((s) => s.transition().duration(600).attr("cx", (d) => x(d.avgTemp)).attr("cy", (d) => y(d.annualPrecip)).attr("r", 6))
   )
-    .attr("fill", (d) => d.label === state.selectedCity ? COLORS.heat : COLORS.surface)
-    .attr("stroke", (d) => d.label === state.selectedCity ? COLORS.ink : COLORS.faint)
-    .attr("stroke-width", (d) => d.label === state.selectedCity ? 2.5 : 1.5)
+    .attr("fill", COLORS.surface)
+    .attr("stroke", COLORS.faint)
+    .attr("stroke-width", 1.5)
     .style("cursor", "pointer")
     .on("mouseenter", (e, d) => showTip(`<strong>${d.label}</strong><span>${d.avgTemp.toFixed(1)}°C · ${d.annualPrecip.toFixed(0)} mm/yr</span><span>Match ${d.row.index.toFixed(0)}/100</span>`, e))
     .on("mousemove", moveTip).on("mouseleave", hideTip)
@@ -462,7 +465,7 @@ function drawTrajectory() {
 
   // unified, de-cluttered labels with leader lines (fixes overlap when cities sit close in climate space)
   const labelData = [
-    ...cityPoints.map((d) => ({ text: `${d.label} today`, ax: x(d.avgTemp), ay: y(d.annualPrecip), strong: d.label === state.selectedCity })),
+    ...cityPoints.map((d) => ({ text: `${d.label} today`, ax: x(d.avgTemp), ay: y(d.annualPrecip), strong: false })),
     ...sdPoints.map((d, i) => ({ text: d.label, ax: x(d.avgTemp), ay: y(d.annualPrecip), strong: true, below: i === 0 }))
   ];
   labelData.forEach((d) => {
@@ -641,26 +644,47 @@ function updateTravel(animate) {
   if (!mapProjection || state.activeView !== "map") return;
   const svg = d3.select(byId("mapSvg"));
   const ghost = svg.select(".ghost"); if (ghost.empty()) return;
-  const rows = bestTwinAtYear(state.year).filter((r) => FOCUS_CITIES.includes(r.city));
-  const top = rows[0];
+
+  // San Diego's climate at this year, scored against the three map cities (itself + its two
+  // nearest twins). "San Diego" scores its own present-day climate, so it reads 100 at the
+  // start and falls as the projection warms away from today.
+  const prof = sdProfileAtYear(state.year);
   const locs = new Map(cityLocations().map((l) => [l.city, l]));
-  const target = locs.get(top.city) || locs.get("San Diego");
-  const [tx, ty] = mapProjection([target.lon, target.lat]);
+  const cands = FOCUS_CITIES
+    .map((city) => ({ city, index: scoreForProfile(city, prof.temp, prof.rain).index, loc: locs.get(city) }))
+    .filter((c) => c.loc);
+
+  // Place the marker at a similarity-weighted blend of the three city points, so it starts
+  // on San Diego and glides toward whichever city its climate grows to resemble.
+  const T = 6;
+  const ws = cands.map((c) => Math.exp(c.index / T));
+  const wsum = ws.reduce((a, b) => a + b, 0) || 1;
+  let tx = 0, ty = 0;
+  cands.forEach((c, i) => { const [px, py] = mapProjection([c.loc.lon, c.loc.lat]); tx += (ws[i] / wsum) * px; ty += (ws[i] / wsum) * py; });
+
+  const self = cands.find((c) => c.city === "San Diego");
+  const others = cands.filter((c) => c.city !== "San Diego").sort((a, b) => b.index - a.index);
+  const topOther = others[0];
+  const stillSelf = self && topOther && self.index >= topOther.index;
 
   const gsel = animate ? ghost.transition().duration(650).ease(d3.easeCubicInOut) : ghost;
   gsel.attr("transform", `translate(${tx},${ty})`);
   ghost.select(".ghost-label").text(`SD ${state.year}`);
 
-  // highlight the current twin city ring
-  svg.selectAll(".city-node").select("circle").attr("stroke-width", function (d) {
-    const isSD = d.city === "San Diego"; const isSel = d.city === state.selectedCity;
-    return d.city === top.city ? 3.4 : (isSel || isSD ? 2.6 : 1.6);
-  }).attr("stroke", function (d) {
-    const isSD = d.city === "San Diego"; const isSel = d.city === state.selectedCity;
-    return d.city === top.city ? COLORS.heat : (isSel || isSD ? COLORS.ink : "#ffffff");
+  // recolor and re-ring the city dots by their match to San Diego at THIS year, so the whole
+  // map responds to the slider (the lead twin gets the orange ring)
+  svg.selectAll(".city-node").select("circle").each(function (d) {
+    const c = cands.find((k) => k.city === d.city);
+    const isSD = d.city === "San Diego";
+    const isLead = !stillSelf && topOther && d.city === topOther.city;
+    d3.select(this)
+      .attr("fill", isSD ? COLORS.heat : (c ? scoreColor(c.index) : COLORS.surface))
+      .attr("r", isSD ? 9 : (c ? 5 + c.index / 9 : 5))
+      .attr("stroke", isLead ? COLORS.heat : (isSD ? COLORS.ink : "#ffffff"))
+      .attr("stroke-width", isLead ? 3.4 : (isSD ? 2.6 : 1.6));
   });
 
-  // trail of visited twins (dashed line San Diego -> current twin)
+  // trail from San Diego to the marker (how far the climate has drifted)
   const sd = locs.get("San Diego");
   const [sx, sy] = mapProjection([sd.lon, sd.lat]);
   let trail = svg.select(".trail-layer").select(".trail-line");
@@ -670,8 +694,8 @@ function updateTravel(animate) {
   // readout
   const ro = byId("travelReadout");
   if (ro) {
-    if (top.city === "San Diego") ro.innerHTML = `Around <strong>${state.year}</strong>, San Diego still feels like itself.`;
-    else ro.innerHTML = `By <strong>${state.year}</strong>, San Diego's climate most resembles <strong>${top.city}</strong> today <span class="ro-score">match ${top.index.toFixed(0)}/100</span>`;
+    if (stillSelf) ro.innerHTML = `Around <strong>${state.year}</strong>, San Diego's climate still feels like its own.`;
+    else ro.innerHTML = `By <strong>${state.year}</strong>, San Diego's climate most resembles <strong>${topOther.city}</strong> today <span class="ro-score">match ${topOther.index.toFixed(0)}/100</span>`;
   }
   const yl = byId("yearLabel"); if (yl) yl.textContent = state.year;
 }
