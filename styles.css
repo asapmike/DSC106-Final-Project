@@ -426,6 +426,10 @@ footer {
   display: none;
 }
 
+.sticky-stage[data-view="trajectory"] .weight-field {
+  display: none;
+}
+
 .stage-header {
   display: flex;
   align-items: flex-start;
