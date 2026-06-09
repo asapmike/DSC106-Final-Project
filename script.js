@@ -25,6 +25,11 @@ const SCENARIOS = [
 
 const PERIODS = ["2050", "2080s"];
 const SEASONS = ["Winter", "Spring", "Summer", "Fall"];
+const TRAVEL_MAX_YEAR_BY_PERIOD = {
+  "2050": 2050,
+  "2080s": 2085
+};
+const TWIN_TIMELINE_YEARS = [2030, 2040, 2050, 2060, 2070, 2080];
 const METRICS = [
   { key: "index", label: "Overall Match" },
   { key: "tempScore", label: "Temperature Match" },
@@ -59,7 +64,7 @@ const VIEW_META = {
   difference: {
     label: "Step 5 of 5",
     question: "How long does the twin last?",
-    annotation: "Each bar is the best match San Diego can find in that scenario and period. Under high emissions by the 2080s, even the closest twin barely fits, San Diego runs off the map of today's cities."
+    annotation: "Each bar is the best match San Diego can find in the selected emissions scenario, one decade at a time. Use the scenario buttons to compare how quickly the closest twin fades."
   }
 };
 
@@ -103,6 +108,7 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 function profileName(period = state.period, scenario = state.scenario) { return `${period} ${scenario}`; }
 function scenarioMeta(code = state.scenario) { return SCENARIOS.find((s) => s.code === code) || SCENARIOS[0]; }
 function metricField(metric) { return metric && metric.indexOf("temp") !== -1 ? "temp" : "precip"; }
+function travelMaxYear(period = state.period) { return TRAVEL_MAX_YEAR_BY_PERIOD[period] || 2085; }
 
 function cityLocations() {
   return Object.entries(CITIES).map(([city, d]) => ({ city, lat: d.lat, lon: d.lon }));
@@ -250,6 +256,20 @@ function setButtonStates() {
   document.querySelectorAll("[data-period]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.period === state.period)));
   document.querySelectorAll("[data-metric]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.metric === state.metric)));
 }
+function syncYearSlider() {
+  const slider = byId("yearSlider");
+  const max = travelMaxYear();
+  if (slider) {
+    const min = Number(slider.min);
+    state.year = clamp(state.year, min, max);
+    slider.max = String(max);
+    slider.value = String(state.year);
+  }
+  const currentLabel = byId("yearLabel");
+  if (currentLabel) currentLabel.textContent = state.year;
+  const maxLabel = byId("yearMaxLabel");
+  if (maxLabel) maxLabel.textContent = max;
+}
 function initControls() {
   const scenarioButtons = byId("scenarioButtons");
   SCENARIOS.forEach((scenario) => {
@@ -265,7 +285,7 @@ function initControls() {
     const b = document.createElement("button");
     b.type = "button"; b.className = "control-button"; b.dataset.period = period;
     b.textContent = period; b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => { state.period = period; ensureSelectedCity(); updateAll(); });
+    b.addEventListener("click", () => { stopPlay(); state.period = period; ensureSelectedCity(); updateAll(); });
     periodButtons.appendChild(b);
   });
 
@@ -304,7 +324,7 @@ function initControls() {
   // Year slider (signature interaction)
   const slider = byId("yearSlider");
   if (slider) {
-    slider.value = state.year;
+    syncYearSlider();
     slider.addEventListener("input", () => { stopPlay(); state.year = Number(slider.value); updateTravel(true); });
   }
   const playBtn = byId("playButton");
@@ -825,22 +845,27 @@ function drawDifference() {
   svgNode.setAttribute("preserveAspectRatio", "xMidYMid meet");
   const svg = d3.select(svgNode);
 
-  // best achievable twin (max Climate Twin Index over present-day cities) for each scenario × period
-  const combos = [];
-  SCENARIOS.forEach((sc) => PERIODS.forEach((per) => {
-    const ft = futureValues("seasonal_mean_temp_c", per, sc.code);
-    const fr = futureValues("seasonal_precip_mm", per, sc.code);
-    const best = comparisonCities().map((c) => scoreForProfile(c, ft, fr)).sort((a, b) => b.index - a.index)[0];
-    combos.push({ scenario: sc.code, scenarioLabel: sc.label, period: per, index: best ? best.index : 0, city: best ? best.city : "—" });
-  }));
+  // Best achievable twin by decade for the currently selected emissions scenario.
+  const scenario = scenarioMeta();
+  const rows = TWIN_TIMELINE_YEARS.map((year) => {
+    const prof = sdProfileAtYear(year, state.scenario);
+    const best = comparisonCities().map((c) => scoreForProfile(c, prof.temp, prof.rain)).sort((a, b) => b.index - a.index)[0];
+    return {
+      scenario: state.scenario,
+      scenarioLabel: scenario.label,
+      year,
+      period: year <= travelMaxYear("2050") ? "2050" : "2080s",
+      index: best ? best.index : 0,
+      city: best ? best.city : "—"
+    };
+  });
 
-  const x0 = d3.scaleBand().domain(SCENARIOS.map((s) => s.code)).range([margin.left, width - margin.right]).paddingInner(0.3).paddingOuter(0.12);
-  const x1 = d3.scaleBand().domain(PERIODS).range([0, x0.bandwidth()]).padding(0.2);
+  const x = d3.scaleBand().domain(TWIN_TIMELINE_YEARS).range([margin.left, width - margin.right]).padding(0.24);
   const y = d3.scaleLinear([0, 100], [height - margin.bottom, margin.top]);
   const color = (v) => d3.interpolateRgb(COLORS.heat, COLORS.accent)(clamp(v / 100, 0, 1));
   const t = d3.transition().duration(700).ease(d3.easeCubicOut);
-  const bx = (d) => x0(d.scenario) + x1(d.period);
-  const isCurrent = (d) => d.scenario === state.scenario && d.period === state.period;
+  const bx = (d) => x(d.year);
+  const isCurrent = (d) => d.year === state.year;
 
   if (svg.select(".decay-bg").empty()) {
     svg.append("rect").attr("class", "decay-bg").attr("width", width).attr("height", height).attr("rx", 18).attr("fill", COLORS.bg);
@@ -848,7 +873,7 @@ function drawDifference() {
     svg.append("g").attr("class", "decay-bars");
     svg.append("g").attr("class", "decay-axis");
     svg.append("text").attr("class", "decay-title chart-label selected-label").attr("x", margin.left).attr("y", 30).text("How good is San Diego's best-matching twin?");
-    svg.append("text").attr("class", "decay-sub chart-label").attr("x", margin.left).attr("y", 50).attr("opacity", 0.75).text("Highest Climate Twin Index among all present-day cities, by scenario and period");
+    svg.append("text").attr("class", "decay-sub chart-label").attr("x", margin.left).attr("y", 50).attr("opacity", 0.75);
     svg.append("text").attr("class", "chart-label").attr("transform", `translate(16,${(margin.top + height - margin.bottom) / 2}) rotate(-90)`).attr("text-anchor", "middle").text("Best match (0 to 100)");
     const dleg = svg.append("g").attr("class", "decay-legend");
     dleg.append("rect").attr("x", width - 204).attr("y", 22).attr("width", 12).attr("height", 12).attr("rx", 3).attr("fill", COLORS.heat);
@@ -862,27 +887,30 @@ function drawDifference() {
   grid.selectAll("text").data([0, 25, 50, 75, 100]).join("text").attr("class", "chart-label").attr("text-anchor", "end").attr("x", margin.left - 8).attr("y", (d) => y(d) + 4).text((d) => d);
 
   const axis = svg.select(".decay-axis");
-  axis.selectAll(".scglabel").data(SCENARIOS).join("text").attr("class", "scglabel chart-label selected-label").attr("text-anchor", "middle")
-    .attr("x", (s) => x0(s.code) + x0.bandwidth() / 2).attr("y", height - margin.bottom + 38).text((s) => s.code);
-  axis.selectAll(".scglabel2").data(SCENARIOS).join("text").attr("class", "scglabel2 chart-label").attr("text-anchor", "middle").attr("opacity", 0.7)
-    .attr("x", (s) => x0(s.code) + x0.bandwidth() / 2).attr("y", height - margin.bottom + 54).text((s) => s.label);
+  axis.selectAll("*").remove();
+  axis.selectAll(".decade-label").data(TWIN_TIMELINE_YEARS).join("text").attr("class", "decade-label chart-label selected-label").attr("text-anchor", "middle")
+    .attr("x", (year) => x(year) + x.bandwidth() / 2).attr("y", height - margin.bottom + 24).text((year) => year);
+  axis.append("text").attr("class", "chart-label").attr("text-anchor", "middle").attr("opacity", 0.7)
+    .attr("x", (margin.left + width - margin.right) / 2).attr("y", height - margin.bottom + 50).text(`Selected scenario: ${state.scenario} · ${scenario.label}`);
+  svg.select(".decay-sub").text(`Highest Climate Twin Index among all present-day cities, by decade under ${scenario.label}`);
 
-  const groups = svg.select(".decay-bars").selectAll(".decay-group").data(combos, (d) => d.scenario + d.period).join((enter) => {
+  const groups = svg.select(".decay-bars").selectAll(".decay-group").data(rows, (d) => d.year).join((enter) => {
     const grp = enter.append("g").attr("class", "decay-group").style("cursor", "pointer");
     grp.append("rect").attr("class", "decay-bar").attr("rx", 6).attr("y", y(0)).attr("height", 0);
     grp.append("text").attr("class", "decay-city chart-label").attr("text-anchor", "middle");
     grp.append("text").attr("class", "decay-score chart-label selected-label").attr("text-anchor", "middle");
-    grp.append("text").attr("class", "decay-per chart-label").attr("text-anchor", "middle").attr("opacity", 0.75);
+    grp.append("rect").attr("class", "decay-hit").attr("fill", "transparent").style("pointer-events", "all");
     return grp;
   });
-  groups.select(".decay-bar").attr("x", bx).attr("width", x1.bandwidth()).attr("fill", (d) => color(d.index))
+  groups.select(".decay-bar").attr("x", bx).attr("width", x.bandwidth()).attr("fill", (d) => color(d.index))
     .attr("stroke", (d) => isCurrent(d) ? COLORS.ink : "none").attr("stroke-width", (d) => isCurrent(d) ? 3 : 0)
     .transition(t).attr("y", (d) => y(d.index)).attr("height", (d) => Math.max(0, y(0) - y(d.index)));
-  groups.select(".decay-city").attr("x", (d) => bx(d) + x1.bandwidth() / 2).text((d) => d.city).transition(t).attr("y", (d) => y(d.index) - 22);
-  groups.select(".decay-score").attr("x", (d) => bx(d) + x1.bandwidth() / 2).text((d) => d.index.toFixed(0)).transition(t).attr("y", (d) => y(d.index) - 8);
-  groups.select(".decay-per").attr("x", (d) => bx(d) + x1.bandwidth() / 2).attr("y", height - margin.bottom + 18).text((d) => d.period);
-  groups.on("click", (e, d) => { state.scenario = d.scenario; state.period = d.period; ensureSelectedCity(); updateAll(); })
-    .on("mouseenter", (e, d) => showTip(`<strong>${d.scenarioLabel} · ${d.period}</strong><span>Closest twin: ${d.city}</span><span>Best match ${d.index.toFixed(0)}/100</span>`, e))
+  groups.select(".decay-city").attr("x", (d) => bx(d) + x.bandwidth() / 2).text((d) => d.city).transition(t).attr("y", (d) => y(d.index) - 22);
+  groups.select(".decay-score").attr("x", (d) => bx(d) + x.bandwidth() / 2).text((d) => d.index.toFixed(0)).transition(t).attr("y", (d) => y(d.index) - 8);
+  groups.select(".decay-per").remove();
+  groups.select(".decay-hit").attr("x", bx).attr("y", margin.top).attr("width", x.bandwidth()).attr("height", height - margin.top - margin.bottom + 28);
+  groups.on("click", (e, d) => { state.year = d.year; state.period = d.period; state.selectedCity = d.city; ensureSelectedCity(); updateAll(); })
+    .on("mouseenter", (e, d) => showTip(`<strong>${d.scenarioLabel} · ${d.year}</strong><span>Closest twin: ${d.city}</span><span>Best match ${d.index.toFixed(0)}/100</span>`, e))
     .on("mousemove", moveTip).on("mouseleave", hideTip);
 }
 
@@ -891,7 +919,7 @@ function drawAll() {
   drawTrajectory(); drawRanking(); drawMap(); drawFingerprint(); drawDifference();
 }
 function updateAll() {
-  ensureSelectedCity(); setButtonStates(); updateSummary(); drawAll();
+  ensureSelectedCity(); setButtonStates(); syncYearSlider(); updateSummary(); drawAll();
 }
 function boot() {
   if (!Object.keys(CITIES).length) {

@@ -81,7 +81,7 @@
           <div class="story-step" data-view="map">
             <span class="step-kicker">Step 3 of 5</span>
             <h3>Watch the climate travel.</h3>
-            <p>Zoomed in on San Diego and its two closest twins. The orange marker is San Diego's projected climate; drag the year or press play and it lifts off San Diego, gliding toward whichever city it grows to resemble, Los Angeles, then leaning toward Riverside late in the century.</p>
+            <p>Zoomed in on San Diego and its two closest twins. The orange marker is San Diego's projected climate; drag the year or press play and it is pulled toward the city whose climate it most resembles today. The closer the match, the stronger the pull.</p>
             <ul>
               <li>Early years: the marker sits on San Diego, its climate still feels like its own.</li>
               <li>Press play to send San Diego's climate across the decades.</li>
@@ -103,9 +103,9 @@
           <div class="story-step" data-view="difference">
             <span class="step-kicker">Step 5 of 5</span>
             <h3>When does the twin run out?</h3>
-            <p>Each bar is the best match San Diego can find, across every scenario and period. The match holds near 80 for most futures, then falls off a cliff under high emissions by the 2080s.</p>
+            <p>Each bar is the best match San Diego can find in the selected scenario, one decade at a time. Use the scenario buttons above to compare low, moderate, and high emissions paths.</p>
             <ul>
-              <li>Click a bar to jump to that scenario and period.</li>
+              <li>Click a bar to move the story to that year.</li>
               <li>A score of 56 means even the closest city barely fits.</li>
               <li>That gap is San Diego heading somewhere with no twin.</li>
             </ul>
@@ -164,14 +164,14 @@
               <div class="travel-controls">
                 <button id="playButton" class="play-button" type="button">▶ Play</button>
                 <div class="travel-slider">
-                  <input id="yearSlider" type="range" min="2025" max="2090" step="1" value="2055" aria-label="Year" />
-                  <div class="travel-scale"><span>2025</span><span class="year-now" id="yearLabel">2055</span><span>2090</span></div>
+                  <input id="yearSlider" type="range" min="2025" max="2085" step="1" value="2055" aria-label="Year" />
+                  <div class="travel-scale"><span>2025</span><span class="year-now" id="yearLabel">2055</span><span id="yearMaxLabel">2085</span></div>
                 </div>
               </div>
               <p class="travel-readout" id="travelReadout"></p>
               <div class="panel-insight">
                 <strong>Map caveat</strong>
-                <p>The orange marker is San Diego's projected climate, placed by how closely it matches each city that year. It begins on San Diego and is pulled toward Los Angeles or Riverside as the projection warms. These cities sit within ~150 km of each other, so this is climate distance, not map distance.</p>
+                <p>The orange marker is San Diego's projected climate, pulled toward the cities it most resembles today. The closer the climate match, the stronger the pull. These cities sit within ~150 km of each other, so this is climate distance, not map distance.</p>
               </div>
             </div>
 
@@ -184,10 +184,10 @@
             </div>
 
             <div class="viz-panel" data-panel="difference" aria-label="Difference from future San Diego chart">
-              <svg id="differenceSvg" class="viz tall-viz" role="img" aria-label="Bar chart of San Diego's best available twin match across scenarios and periods"></svg>
+              <svg id="differenceSvg" class="viz tall-viz" role="img" aria-label="Bar chart of San Diego's best available twin match by decade for the selected scenario"></svg>
               <div class="panel-insight">
                 <strong>The match runs out</strong>
-                <p>Each bar is the best Climate Twin Index San Diego can reach in that scenario and period. It stays near 80 for most futures, then drops to the mid-50s under high emissions by the 2080s, past that, no present-day city is a good analog.</p>
+                <p>Each bar is the best Climate Twin Index San Diego can reach in the selected scenario. The decade-by-decade view shows whether the closest twin fades gradually or falls away late in the century.</p>
               </div>
             </div>
           </div>
@@ -247,7 +247,7 @@
         </article>
         <article>
           <h3>Interaction rationale</h3>
-          <p>The scenario and period buttons act as dynamic queries over the dataset, and the weight sliders let the reader redefine what "similar" means and watch the ranking re-sort, turning an arbitrary 60/30/10 choice into something testable. The signature interaction is the map's year slider: drag it or press play and a marker for San Diego's projected climate travels to whichever nearby city it most resembles that year, making a moving climate concrete. Step 5's bars are clickable, jumping the whole story to that scenario and period.</p>
+          <p>The scenario and period buttons act as dynamic queries over the dataset, and the weight sliders let the reader redefine what "similar" means and watch the ranking re-sort, turning an arbitrary 60/30/10 choice into something testable. The signature interaction is the map's year slider: drag it or press play and a marker for San Diego's projected climate travels to whichever nearby city it most resembles that year, making a moving climate concrete. Step 5 uses the scenario buttons to compare SSP pathways, then shows the best available twin decade by decade.</p>
         </article>
         <article>
           <h3>Development process</h3>
